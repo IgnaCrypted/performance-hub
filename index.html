@@ -1,1586 +1,1680 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Guichón | Performance Hub PRO</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg-base: #060d0d;
-  --bg-card: #0d1a1a;
-  --bg-card2: #0f2020;
-  --green: #00e896;
-  --green-dim: #00b872;
-  --green-dark: #003d26;
-  --gold: #f0c040;
-  --gold-dim: #c09030;
-  --red: #ff4d6d;
-  --blue: #38bdf8;
-  --text: #e8f5f0;
-  --text-muted: #5a8a7a;
-  --border: rgba(0,232,150,0.12);
-  --border-bright: rgba(0,232,150,0.35);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: 'Barlow', sans-serif;
-  background-color: var(--bg-base);
-  color: var(--text);
-  min-height: 100vh;
-  -webkit-tap-highlight-color: transparent;
-  overflow-x: hidden;
-}
-/* SCROLLBARS */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--green-dark); border-radius: 2px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Guichon | Performance Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #060d0d;
+      --bg-card: #0d1a1a;
+      --bg-card2: #0f2020;
+      --green: #00e896;
+      --green-dim: #00b872;
+      --green-dark: #003d26;
+      --gold: #f0c040;
+      --red: #ff4d6d;
+      --blue: #38bdf8;
+      --text: #e8f5f0;
+      --text-muted: #5a8a7a;
+      --border: rgba(0, 232, 150, 0.12);
+      --border-bright: rgba(0, 232, 150, 0.35);
+    }
 
-/* NOISE TEXTURE */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.4;
-}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-/* GRID BG */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: 
-    linear-gradient(rgba(0,232,150,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,232,150,0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-  z-index: 0;
-}
+    body {
+      font-family: 'Barlow', sans-serif;
+      background: var(--bg-base);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
 
-/* NAV */
-.nav {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(6,13,13,0.92);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-}
-.nav-brand { font-family: 'Barlow Condensed', sans-serif; }
-.nav-brand .title { font-size: 1.4rem; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; color: var(--green); line-height: 1; }
-.nav-brand .sub { font-size: 0.55rem; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted); }
-.nav-inner { max-width: 1400px; margin: 0 auto; padding: 0 1.25rem; display: flex; justify-content: space-between; align-items: center; height: 3.5rem; }
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px
+    }
 
-.tab-bar { display: flex; overflow-x: auto; gap: 0; background: rgba(0,0,0,0.3); border-top: 1px solid var(--border); scrollbar-width: none; }
-.tab-bar::-webkit-scrollbar { display: none; }
-.tab-btn {
-  flex-shrink: 0;
-  padding: 0.7rem 1.5rem;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  border: none; background: transparent; cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-.tab-btn:hover { color: var(--text); }
-.tab-btn.active { color: var(--green); border-bottom-color: var(--green); }
+    ::-webkit-scrollbar-track {
+      background: transparent
+    }
 
-/* MAIN */
-main { max-width: 1400px; margin: 0 auto; padding: 1.5rem 1.25rem; position: relative; z-index: 1; }
-.page { display: none; }
-.page.active { display: block; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    ::-webkit-scrollbar-thumb {
+      background: var(--green-dark);
+      border-radius: 2px
+    }
 
-/* PAGE HEADER */
-.page-header { margin-bottom: 1.5rem; }
-.page-header h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 2.2rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text); line-height: 1; }
-.page-header h1 span { color: var(--green); }
-.page-header p { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-top: 0.3rem; }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: .4
+    }
 
-/* CARDS */
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.25rem;
-  position: relative;
-  overflow: hidden;
-}
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--green-dim), transparent);
-  opacity: 0.4;
-}
-.card-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 1rem;
-  display: flex; align-items: center; gap: 0.5rem;
-}
-.card-title::before {
-  content: '';
-  display: block; width: 3px; height: 12px;
-  background: var(--green);
-  border-radius: 2px;
-}
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(0, 232, 150, .03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 232, 150, .03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0
+    }
 
-/* KPI GRID */
-.kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
-@media (min-width: 640px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); } }
+    /* NAV */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(6, 13, 13, .94);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border)
+    }
 
-.kpi-card {
-  background: var(--bg-card2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem 0.9rem;
-  position: relative;
-  overflow: hidden;
-}
-.kpi-card::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0;
-  height: 2px; width: 100%;
-  background: var(--accent, var(--green));
-  opacity: 0.6;
-}
-.kpi-label { font-size: 0.55rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
-.kpi-value { font-family: 'Barlow Condensed', sans-serif; font-size: 1.7rem; font-weight: 900; color: var(--accent, var(--green)); line-height: 1; }
-.kpi-unit { font-size: 0.65rem; color: var(--text-muted); margin-left: 2px; }
-.kpi-trend { font-size: 0.6rem; font-weight: 600; margin-top: 0.3rem; }
-.trend-up { color: var(--green); }
-.trend-down { color: var(--red); }
-.trend-neutral { color: var(--text-muted); }
+    .nav-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 3.5rem
+    }
 
-/* CHART CONTAINER */
-.chart-wrap { position: relative; width: 100%; }
-.chart-wrap canvas { max-height: 280px; }
+    .nav-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--green);
+      line-height: 1
+    }
 
-/* TABLES */
-.data-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
-.data-table th {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  padding: 0.6rem 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-.data-table td {
-  padding: 0.65rem 0.75rem;
-  border-bottom: 1px solid rgba(0,232,150,0.05);
-  font-size: 0.75rem;
-  white-space: nowrap;
-}
-.data-table tr:last-child td { border-bottom: none; }
-.data-table tr:hover td { background: rgba(0,232,150,0.04); }
-.data-table .highlight { color: var(--green); font-weight: 700; font-family: 'Space Mono', monospace; }
-.data-table .dim { color: var(--text-muted); }
-.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .nav-sub {
+      font-size: .55rem;
+      font-weight: 600;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+      color: var(--text-muted)
+    }
 
-/* BADGE */
-.badge {
-  display: inline-block;
-  padding: 0.15rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.badge-green { background: rgba(0,232,150,0.15); color: var(--green); border: 1px solid rgba(0,232,150,0.25); }
-.badge-gold { background: rgba(240,192,64,0.15); color: var(--gold); border: 1px solid rgba(240,192,64,0.25); }
-.badge-red { background: rgba(255,77,109,0.15); color: var(--red); border: 1px solid rgba(255,77,109,0.25); }
-.badge-blue { background: rgba(56,189,248,0.15); color: var(--blue); border: 1px solid rgba(56,189,248,0.25); }
+    .tab-bar {
+      display: flex;
+      overflow-x: auto;
+      background: rgba(0, 0, 0, .3);
+      border-top: 1px solid var(--border);
+      scrollbar-width: none;
+      max-width: 1400px;
+      margin: 0 auto
+    }
 
-/* PROGRESS BAR */
-.progress-bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; margin-top: 0.4rem; }
-.progress-fill { height: 100%; border-radius: 2px; background: var(--green); transition: width 1s ease; }
+    .tab-bar::-webkit-scrollbar {
+      display: none
+    }
 
-/* AI / CHAT */
-.chat-messages { height: 320px; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
-.chat-msg { max-width: 85%; font-size: 0.8rem; line-height: 1.5; padding: 0.75rem 1rem; border-radius: 12px; }
-.chat-user { background: rgba(0,232,150,0.15); border: 1px solid rgba(0,232,150,0.2); color: var(--text); align-self: flex-end; border-bottom-right-radius: 3px; }
-.chat-ai { background: var(--bg-card2); border: 1px solid var(--border); color: var(--text); align-self: flex-start; border-bottom-left-radius: 3px; }
-.chat-ai.loading { display: flex; gap: 4px; align-items: center; }
-.dot-flash { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: dotFlash 1.4s infinite ease-in-out; }
-.dot-flash:nth-child(2) { animation-delay: 0.2s; }
-.dot-flash:nth-child(3) { animation-delay: 0.4s; }
-@keyframes dotFlash { 0%,80%,100% { opacity: 0.15; } 40% { opacity: 1; } }
+    .tab-btn {
+      flex-shrink: 0;
+      padding: .7rem 1.5rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all .2s;
+      white-space: nowrap
+    }
 
-.chat-input-row { display: flex; gap: 0.5rem; padding: 0.75rem 1rem; border-top: 1px solid var(--border); }
-.chat-input {
-  flex: 1;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.6rem 0.9rem;
-  font-size: 0.8rem;
-  color: var(--text);
-  outline: none;
-  font-family: 'Barlow', sans-serif;
-  transition: border-color 0.2s;
-}
-.chat-input:focus { border-color: var(--green-dim); }
-.chat-input::placeholder { color: var(--text-muted); }
-.send-btn {
-  background: var(--green);
-  color: var(--bg-base);
-  border: none; border-radius: 8px;
-  padding: 0.6rem 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: 0.75rem;
-  transition: all 0.15s;
-  font-family: 'Barlow Condensed', sans-serif;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-.send-btn:hover { background: #00ffa8; }
-.send-btn:active { transform: scale(0.96); }
+    .tab-btn:hover {
+      color: var(--text)
+    }
 
-/* INSIGHT CARD */
-.insight-box {
-  background: linear-gradient(135deg, rgba(0,232,150,0.08), rgba(0,60,40,0.2));
-  border: 1px solid rgba(0,232,150,0.2);
-  border-radius: 12px;
-  padding: 1.25rem;
-}
-.insight-box h3 {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 1rem; font-weight: 800;
-  text-transform: uppercase; letter-spacing: 0.08em;
-  color: var(--green); margin-bottom: 0.75rem;
-}
-.insight-box p, .insight-box li { font-size: 0.82rem; color: rgba(232,245,240,0.85); line-height: 1.7; }
-.insight-box ul { padding-left: 1.2rem; margin-top: 0.5rem; }
-.insight-box li { margin-bottom: 0.3rem; }
-.insight-box strong { color: var(--gold); }
-.insight-box em { color: var(--green); font-style: normal; font-weight: 600; }
+    .tab-btn.active {
+      color: var(--green);
+      border-bottom-color: var(--green)
+    }
 
-/* ANALYZE BTN */
-.analyze-btn {
-  background: linear-gradient(135deg, var(--green), #00c078);
-  color: var(--bg-base);
-  border: none; border-radius: 8px;
-  padding: 0.8rem 1.5rem;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.75rem; font-weight: 800;
-  letter-spacing: 0.15em; text-transform: uppercase;
-  cursor: pointer; width: 100%; margin-top: 0.75rem;
-  transition: all 0.2s;
-  box-shadow: 0 0 20px rgba(0,232,150,0.2);
-}
-.analyze-btn:hover { box-shadow: 0 0 30px rgba(0,232,150,0.4); transform: translateY(-1px); }
-.analyze-btn:active { transform: scale(0.98); }
-.analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    /* MAIN */
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem;
+      position: relative;
+      z-index: 1
+    }
 
-/* DIVIDER */
-.divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+    .page {
+      display: none
+    }
 
-/* SPINNER */
-.spin { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(0,232,150,0.2); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+    .page.active {
+      display: block;
+      animation: fadeIn .3s ease
+    }
 
-/* STAT COMPARE ROW */
-.compare-row { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid rgba(0,232,150,0.06); }
-.compare-row:last-child { border-bottom: none; }
-.compare-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
-.compare-val { font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: 700; }
-.compare-diff { font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 3px; margin-left: 0.3rem; }
-.diff-pos { background: rgba(0,232,150,0.1); color: var(--green); }
-.diff-neg { background: rgba(255,77,109,0.1); color: var(--red); }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px)
+      }
 
-/* VELOCITY ZONES */
-.zone-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; margin-top: 0.4rem; }
-.zone-seg { height: 100%; transition: width 0.8s ease; }
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
 
-/* PROFILE STAT */
-.profile-stat { display: flex; flex-direction: column; gap: 0.2rem; }
-.profile-stat-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-muted); }
-.profile-stat-value { font-family: 'Barlow Condensed', sans-serif; font-size: 1.2rem; font-weight: 900; color: var(--text); }
+    /* PAGE HEADER */
+    .ph {
+      margin-bottom: 1.5rem
+    }
 
-/* GRID UTILS */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
-@media (max-width: 480px) { .grid-3 { grid-template-columns: 1fr 1fr; } .grid-2 { grid-template-columns: 1fr 1fr; } }
+    .ph h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: var(--text);
+      line-height: 1
+    }
 
-.gap-sm { gap: 0.75rem; }
-.stack { display: flex; flex-direction: column; gap: 0.75rem; }
-.mt-sm { margin-top: 0.75rem; }
+    .ph h1 span {
+      color: var(--green)
+    }
 
-/* TOOLTIP OVERRIDE */
-.chartjs-tooltip { font-family: 'Space Mono', monospace !important; font-size: 11px !important; }
+    .ph p {
+      font-size: .7rem;
+      font-weight: 500;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: .3rem
+    }
 
-/* SEASON MARKER */
-.season-tag { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.6rem; background: rgba(240,192,64,0.1); border: 1px solid rgba(240,192,64,0.2); border-radius: 4px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+    /* CARD */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden
+    }
 
-/* TEXTAREA */
-.data-textarea {
-  width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border);
-  border-radius: 8px; padding: 0.9rem; color: var(--text);
-  font-family: 'Barlow', sans-serif; font-size: 0.8rem; resize: vertical; outline: none;
-  transition: border-color 0.2s;
-}
-.data-textarea:focus { border-color: var(--green-dim); }
-.data-textarea::placeholder { color: var(--text-muted); }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--green-dim), transparent);
+      opacity: .4
+    }
 
-.parse-btn {
-  flex: 1; padding: 0.8rem;
-  font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem;
-  font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
-  border: none; border-radius: 8px; cursor: pointer;
-  transition: all 0.15s;
-}
-.parse-btn-gps { background: var(--bg-card2); color: var(--green); border: 1px solid var(--border-bright); }
-.parse-btn-antro { background: var(--gold); color: var(--bg-base); }
-.parse-btn:hover { opacity: 0.85; }
+    .ct {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem
+    }
 
-/* PULSE DOT */
-.pulse-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
-@keyframes pulse { 0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,232,150,0.4); } 50% { opacity: 0.6; box-shadow: 0 0 0 4px rgba(0,232,150,0); } }
-</style>
+    .ct::before {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 12px;
+      background: var(--green);
+      border-radius: 2px;
+      flex-shrink: 0
+    }
+
+    /* KPI */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: .75rem;
+      margin-bottom: 1rem
+    }
+
+    @media(min-width:640px) {
+      .kpi-grid {
+        grid-template-columns: repeat(4, 1fr)
+      }
+    }
+
+    .kpi {
+      background: var(--bg-card2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem .9rem;
+      position: relative;
+      overflow: hidden
+    }
+
+    .kpi::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      width: 100%;
+      background: var(--ka, var(--green));
+      opacity: .6
+    }
+
+    .kl {
+      font-size: .55rem;
+      font-weight: 700;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: .3rem
+    }
+
+    .kv {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.7rem;
+      font-weight: 900;
+      color: var(--ka, var(--green));
+      line-height: 1
+    }
+
+    .ku {
+      font-size: .65rem;
+      color: var(--text-muted);
+      margin-left: 2px
+    }
+
+    .kt {
+      font-size: .6rem;
+      font-weight: 600;
+      margin-top: .3rem
+    }
+
+    .tu {
+      color: var(--green)
+    }
+
+    .td {
+      color: var(--red)
+    }
+
+    .tn {
+      color: var(--text-muted)
+    }
+
+    /* CHART */
+    .cw {
+      position: relative;
+      width: 100%
+    }
+
+    .cw canvas {
+      max-height: 280px
+    }
+
+    /* TABLES */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .75rem
+    }
+
+    .data-table th {
+      font-family: 'Space Mono', monospace;
+      font-size: .55rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: .6rem .75rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap
+    }
+
+    .data-table td {
+      padding: .65rem .75rem;
+      border-bottom: 1px solid rgba(0, 232, 150, .05);
+      white-space: nowrap
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: none
+    }
+
+    .data-table tr:hover td {
+      background: rgba(0, 232, 150, .03)
+    }
+
+    /* record cell = gold + star */
+    .cell-rec {
+      color: var(--gold);
+      font-weight: 700;
+      font-family: 'Space Mono', monospace
+    }
+
+    .cell-rec .star {
+      font-size: .6rem;
+      vertical-align: middle;
+      margin-left: 2px;
+      opacity: .9
+    }
+
+    /* plain cell */
+    .cell-plain {
+      color: var(--text)
+    }
+
+    .dim {
+      color: var(--text-muted)
+    }
+
+    .ts {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch
+    }
+
+    /* BADGES */
+    .badge {
+      display: inline-block;
+      padding: .15rem .5rem;
+      border-radius: 4px;
+      font-size: .58rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase
+    }
+
+    .bg {
+      background: rgba(0, 232, 150, .15);
+      color: var(--green);
+      border: 1px solid rgba(0, 232, 150, .25)
+    }
+
+    .bb {
+      background: rgba(56, 189, 248, .15);
+      color: var(--blue);
+      border: 1px solid rgba(56, 189, 248, .25)
+    }
+
+    .season-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: .25rem .6rem;
+      background: rgba(240, 192, 64, .1);
+      border: 1px solid rgba(240, 192, 64, .2);
+      border-radius: 4px;
+      font-size: .6rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--gold)
+    }
+
+    /* LAYOUT */
+    .g2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem
+    }
+
+    @media(max-width:480px) {
+      .g2 {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: .75rem
+    }
+
+    /* PULSE */
+    .pulse {
+      width: 6px;
+      height: 6px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(0, 232, 150, .4)
+      }
+
+      50% {
+        opacity: .6;
+        box-shadow: 0 0 0 4px rgba(0, 232, 150, 0)
+      }
+    }
+
+    /* FIELD */
+    .field-input {
+      width: 100%;
+      background: rgba(0, 0, 0, .4);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .5rem .75rem;
+      font-size: .8rem;
+      color: var(--text);
+      outline: none;
+      font-family: 'Barlow', sans-serif;
+      transition: border-color .2s
+    }
+
+    .field-input:focus {
+      border-color: var(--green-dim)
+    }
+
+    .field-input::placeholder {
+      color: var(--text-muted)
+    }
+
+    .field-label {
+      font-size: .58rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 4px
+    }
+
+    .fwrap {
+      display: flex;
+      flex-direction: column
+    }
+
+    /* BUTTONS */
+    .btn-save {
+      background: linear-gradient(135deg, var(--green), #00c078);
+      color: var(--bg-base);
+      border: none;
+      border-radius: 8px;
+      padding: .75rem 1.25rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      width: 100%;
+      transition: all .2s;
+      box-shadow: 0 0 20px rgba(0, 232, 150, .15)
+    }
+
+    .btn-save:hover {
+      box-shadow: 0 0 30px rgba(0, 232, 150, .35);
+      transform: translateY(-1px)
+    }
+
+    .btn-save:active {
+      transform: scale(.98)
+    }
+
+    .btn-edit {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: .2rem .55rem;
+      font-size: .6rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap
+    }
+
+    .btn-edit:hover {
+      border-color: var(--green-dim);
+      color: var(--green)
+    }
+
+    .btn-sec {
+      background: var(--bg-card2);
+      color: var(--green);
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      padding: .75rem 1.25rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      width: 100%;
+      transition: all .15s
+    }
+
+    .btn-sec:hover {
+      background: rgba(0, 232, 150, .08)
+    }
+
+    .btn-exp {
+      flex: 1;
+      min-width: 110px;
+      padding: .72rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all .15s
+    }
+
+    .btn-exp-json {
+      background: var(--bg-card2);
+      color: var(--green);
+      border: 1px solid var(--border-bright)
+    }
+
+    .btn-exp-csv {
+      background: var(--gold);
+      color: var(--bg-base);
+      border: none
+    }
+
+    .btn-exp:hover {
+      opacity: .85
+    }
+
+    /* MODAL */
+    .modal-ov {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(6, 13, 13, .88);
+      backdrop-filter: blur(10px);
+      align-items: center;
+      justify-content: center;
+      padding: 1rem
+    }
+
+    .modal-ov.open {
+      display: flex
+    }
+
+    .modal-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-bright);
+      border-radius: 14px;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 480px;
+      position: relative;
+      animation: fadeIn .2s ease
+    }
+
+    .modal-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text);
+      margin-bottom: 1.25rem
+    }
+
+    .modal-title span {
+      color: var(--green)
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      line-height: 1;
+      transition: color .15s
+    }
+
+    .modal-close:hover {
+      color: var(--text)
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+      margin-bottom: .5rem
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: .6rem;
+      margin-top: 1.25rem
+    }
+
+    /* FEEDBACK */
+    .fb {
+      border-radius: 8px;
+      padding: .75rem 1rem;
+      font-size: .75rem;
+      line-height: 1.6;
+      display: none;
+      margin-top: .75rem
+    }
+
+    .fb-ok {
+      background: rgba(0, 232, 150, .06);
+      border: 1px solid rgba(0, 232, 150, .2);
+      color: var(--text)
+    }
+
+    .fb-ok strong {
+      color: var(--green)
+    }
+
+    .fb-err {
+      background: rgba(255, 77, 109, .06);
+      border: 1px solid rgba(255, 77, 109, .2);
+      color: var(--text)
+    }
+
+    .fb-err strong {
+      color: var(--red)
+    }
+
+    /* TREND */
+    .trend-up {
+      color: var(--green)
+    }
+
+    .trend-down {
+      color: var(--red)
+    }
+
+    .trend-n {
+      color: var(--text-muted)
+    }
+
+    /* STATUS ROWS */
+    .sr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: .5rem 0;
+      border-bottom: 1px solid rgba(0, 232, 150, .06)
+    }
+
+    .sr:last-child {
+      border-bottom: none
+    }
+
+    .sl {
+      font-size: .7rem;
+      color: var(--text-muted);
+      font-weight: 500
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- NAV -->
-<nav class="nav">
-  <div class="nav-inner">
-    <div class="flex items-center gap-3">
-      <div style="width:36px;height:36px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#060d0d" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+  <!-- EDIT MODAL -->
+  <div class="modal-ov" id="editModal">
+    <div class="modal-box">
+      <div class="modal-title">Editar — <span id="modal-rival-label"></span></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-grid">
+        <div class="fwrap" style="grid-column:1/-1">
+          <label class="field-label">Rival <span style="color:var(--red)">*</span></label>
+          <input id="e-rival" class="field-input" type="text" placeholder="ej: Pucará">
+        </div>
+        <div class="fwrap">
+          <label class="field-label">Distancia (m) <span style="color:var(--red)">*</span></label>
+          <input id="e-dist" class="field-input" type="number" step="1" placeholder="ej: 6850">
+        </div>
+        <div class="fwrap">
+          <label class="field-label">Intensidad (m/min) <span style="color:var(--red)">*</span></label>
+          <input id="e-int" class="field-input" type="number" step="0.01" placeholder="ej: 77.30">
+        </div>
+        <div class="fwrap">
+          <label class="field-label">Vel. Máx (m/s) <span style="color:var(--red)">*</span></label>
+          <input id="e-vel" class="field-input" type="number" step="0.01" placeholder="ej: 9.12">
+        </div>
+        <div class="fwrap">
+          <label class="field-label">Min. Jugados</label>
+          <input id="e-min" class="field-input" type="number" step="1" placeholder="ej: 80">
+        </div>
+        <div class="fwrap">
+          <label class="field-label">Aceleraciones</label>
+          <input id="e-acc" class="field-input" type="number" step="1" placeholder="ej: 28">
+        </div>
+        <div class="fwrap">
+          <label class="field-label">Desaceleraciones</label>
+          <input id="e-dec" class="field-input" type="number" step="1" placeholder="ej: 33">
+        </div>
+        <div class="fwrap" style="grid-column:1/-1">
+          <label class="field-label">Acciones Explosivas</label>
+          <input id="e-expl" class="field-input" type="number" step="1" placeholder="ej: 45">
+        </div>
       </div>
-      <div class="nav-brand">
-        <div class="title">Guichón <span style="color:var(--gold);">Hub</span></div>
-        <div class="sub">Performance Analytics · Rugby</div>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:6px;">
-      <div class="pulse-dot"></div>
-      <span style="font-size:0.55rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-muted);">Live</span>
-    </div>
-  </div>
-  <div class="tab-bar">
-    <button class="tab-btn active" onclick="showPage('overview')" data-page="overview">Overview</button>
-    <button class="tab-btn" onclick="showPage('gps')" data-page="gps">GPS Partidos</button>
-    <button class="tab-btn" onclick="showPage('antro')" data-page="antro">Antro ISAK</button>
-    <button class="tab-btn" onclick="showPage('comparativa')" data-page="comparativa">Comparativa</button>
-    <button class="tab-btn" onclick="showPage('ai')" data-page="ai">IA Coach ✦</button>
-    <button class="tab-btn" onclick="showPage('admin')" data-page="admin">Cargar ⚙</button>
-  </div>
-</nav>
-
-<main>
-
-<!-- =================== OVERVIEW =================== -->
-<div id="page-overview" class="page active">
-  <div class="page-header">
-    <h1>Dashboard <span>General</span></h1>
-    <p>Temporada 2021–2026 · Ignacio Guichón · Nº 8</p>
-  </div>
-
-  <!-- KPI Top Row -->
-  <div class="kpi-grid" id="kpi-overview"></div>
-
-  <div class="stack">
-
-    <!-- Dual Chart: GPS Intensity + Antro Muscle -->
-    <div class="card">
-      <div class="card-title">Evolución GPS + Composición Corporal</div>
-      <div class="chart-wrap"><canvas id="overviewDualChart"></canvas></div>
-    </div>
-
-    <!-- Season Summary Table -->
-    <div class="card">
-      <div class="card-title">Resumen por Partido</div>
-      <div class="table-scroll">
-        <table class="data-table" id="overview-table">
-          <thead>
-            <tr>
-              <th>Rival</th><th>Distancia</th><th>Intensidad</th><th>V.Max</th><th>Acc</th><th>Dec</th><th>Expl.</th>
-            </tr>
-          </thead>
-          <tbody id="overview-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Antro Latest + Somatotype -->
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Medición Actual</div>
-        <div id="antro-latest-stats" class="stack" style="gap:0.5rem;"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Somatotipo</div>
-        <div class="chart-wrap"><canvas id="overviewSomato"></canvas></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- =================== GPS =================== -->
-<div id="page-gps" class="page">
-  <div class="page-header">
-    <h1>GPS <span>Partidos</span></h1>
-    <p>Métricas de rendimiento físico por encuentro</p>
-  </div>
-
-  <div id="gps-kpi" class="kpi-grid"></div>
-
-  <div class="stack">
-
-    <div class="card">
-      <div class="card-title">Distancia Recorrida por Partido (m)</div>
-      <div class="chart-wrap"><canvas id="gpsDistChart"></canvas></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Intensidad m/min — Cronológico</div>
-      <div class="chart-wrap"><canvas id="gpsIntChart"></canvas></div>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Aceleraciones vs Desaceleraciones</div>
-        <div class="chart-wrap"><canvas id="gpsAccDecChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Velocidad Máxima</div>
-        <div class="chart-wrap"><canvas id="gpsVelChart"></canvas></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Acciones Explosivas (últ. partidos)</div>
-      <div class="chart-wrap"><canvas id="gpsExplChart"></canvas></div>
-    </div>
-
-    <!-- Detailed Table -->
-    <div class="card">
-      <div class="card-title">Tabla Detallada — Todos los Partidos</div>
-      <div class="table-scroll">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>#</th><th>Rival</th><th>Dist. (m)</th><th>Int. m/min</th><th>V.Max m/s</th><th>Acc</th><th>Dec</th><th>Expl.</th><th>Estado</th>
-            </tr>
-          </thead>
-          <tbody id="gps-detail-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Radar de perfil GPS -->
-    <div class="card">
-      <div class="card-title">Perfil GPS — Último Partido</div>
-      <div style="max-width:320px;margin:0 auto;">
-        <div class="chart-wrap"><canvas id="gpsRadar"></canvas></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- =================== ANTRO =================== -->
-<div id="page-antro" class="page">
-  <div class="page-header">
-    <h1>Antro <span>ISAK</span></h1>
-    <p>Evolución 2021–2026 · Protocolo ISAK Nivel 1</p>
-  </div>
-
-  <div id="antro-kpi" class="kpi-grid"></div>
-
-  <div class="stack">
-
-    <div class="card">
-      <div class="card-title">Peso Corporal (kg)</div>
-      <div class="chart-wrap"><canvas id="antroWeightChart"></canvas></div>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">% Músculo</div>
-        <div class="chart-wrap"><canvas id="antroMuscleChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">% Grasa</div>
-        <div class="chart-wrap"><canvas id="antroFatChart"></canvas></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Sumatorias ISAK 6 (mm)</div>
-      <div class="chart-wrap"><canvas id="antroIsakChart"></canvas></div>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Somatotipo por Temporada</div>
-        <div class="chart-wrap"><canvas id="antroSomatoFull"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Evolución Somatotipo</div>
-        <div class="chart-wrap"><canvas id="antroSomatoLine"></canvas></div>
-      </div>
-    </div>
-
-    <!-- Tabla histórica antro -->
-    <div class="card">
-      <div class="card-title">Historial Completo ISAK</div>
-      <div class="table-scroll">
-        <table class="data-table">
-          <thead>
-            <tr><th>Fecha</th><th>Peso</th><th>Músculo%</th><th>Grasa%</th><th>ISAK 6mm</th><th>Endo</th><th>Meso</th><th>Ecto</th><th>Temp.</th></tr>
-          </thead>
-          <tbody id="antro-detail-tbody"></tbody>
-        </table>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- =================== COMPARATIVA =================== -->
-<div id="page-comparativa" class="page">
-  <div class="page-header">
-    <h1>Comparativa <span>Evolución</span></h1>
-    <p>Primer registro vs. último registro</p>
-  </div>
-  <div class="stack">
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Primer Partido GPS</div>
-        <div id="compare-gps-first"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Último Partido GPS</div>
-        <div id="compare-gps-last"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Delta GPS — Primer vs Último</div>
-      <div id="compare-gps-delta" class="stack" style="gap:0;"></div>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-title">Primera Medición Antro</div>
-        <div id="compare-antro-first"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Última Medición Antro</div>
-        <div id="compare-antro-last"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Delta Antro — 2021 vs 2026</div>
-      <div id="compare-antro-delta" class="stack" style="gap:0;"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Distribución de Métricas GPS</div>
-      <div class="chart-wrap"><canvas id="compareRadar"></canvas></div>
-    </div>
-
-  </div>
-</div>
-
-<!-- =================== IA COACH =================== -->
-<div id="page-ai" class="page">
-  <div class="page-header">
-    <h1>IA <span>Coach</span></h1>
-    <p>Análisis avanzado · Claude Sonnet</p>
-  </div>
-  <div class="stack">
-
-    <div class="insight-box">
-      <h3>✦ AI Performance Insights</h3>
-      <div id="ai-insights-content">
-        <p style="color:var(--text-muted);">Presioná <strong style="color:var(--green)">Analizar</strong> para que la IA procese tu historial completo y genere insights de rendimiento personalizados.</p>
-      </div>
-      <button class="analyze-btn" onclick="runAIAnalysis()" id="analyze-btn">
-        ✦ Analizar Evolución Completa
-      </button>
-    </div>
-
-    <div class="card" style="padding:0;overflow:hidden;">
-      <div style="padding:1rem 1.25rem 0.75rem;border-bottom:1px solid var(--border);">
-        <div class="card-title" style="margin:0;">Chat con el Coach</div>
-      </div>
-      <div id="chat-messages" class="chat-messages"></div>
-      <div class="chat-input-row">
-        <input id="chat-input" class="chat-input" type="text" placeholder="Preguntá sobre tu rendimiento..." onkeydown="if(event.key==='Enter')sendChat()">
-        <button class="send-btn" onclick="sendChat()">↑ Enviar</button>
-      </div>
-    </div>
-
-    <!-- Sugerencias rápidas -->
-    <div class="card">
-      <div class="card-title">Preguntas Rápidas</div>
-      <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:0.25rem;" id="quick-questions"></div>
-    </div>
-
-  </div>
-</div>
-
-<!-- =================== ADMIN =================== -->
-<div id="page-admin" class="page">
-  <div class="page-header">
-    <h1>Cargar <span>Datos</span></h1>
-    <p>Ingresá texto de reportes para procesar con IA</p>
-  </div>
-  <div class="stack">
-    <div class="card">
-      <div class="card-title">Procesar Reporte</div>
-      <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:1rem;line-height:1.6;">Pegá el texto del reporte GPS o ISAK. La IA extraerá los datos estructurados automáticamente.</p>
-      <textarea id="raw-data-input" class="data-textarea" rows="7" placeholder="Pegá aquí el reporte... Ejemplo: Partido vs. CASI — Distancia: 4540m, Intensidad: 70.74 m/min, Vel. Máx: 9.06 m/s, Acc: 23, Dec: 28, Explosivos: 0"></textarea>
-      <div style="display:flex;gap:0.75rem;margin-top:0.75rem;">
-        <button class="parse-btn parse-btn-gps" onclick="parseData('gps')">Procesar GPS</button>
-        <button class="parse-btn parse-btn-antro" onclick="parseData('antro')">Procesar Antro</button>
-      </div>
-      <div id="parse-result" style="margin-top:0.75rem;font-size:0.75rem;color:var(--text-muted);display:none;"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Estado de los Datos</div>
-      <div id="data-status" class="stack" style="gap:0.4rem;"></div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Exportar Datos</div>
-      <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.25rem;">
-        <button onclick="exportJSON()" style="flex:1;min-width:120px;" class="parse-btn parse-btn-gps">Exportar JSON</button>
-        <button onclick="exportCSV()" style="flex:1;min-width:120px;" class="parse-btn parse-btn-antro">Exportar CSV</button>
+      <div id="e-fb" class="fb"></div>
+      <div class="modal-actions">
+        <button class="btn-save" onclick="saveEdit()" style="flex:2">✓ Guardar Cambios</button>
+        <button class="btn-sec" onclick="closeModal()" style="flex:1">Cancelar</button>
       </div>
     </div>
   </div>
-</div>
 
-</main>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <div
+          style="width:36px;height:36px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#060d0d" stroke-width="2.5">
+            <path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0" />
+            <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" />
+          </svg>
+        </div>
+        <div>
+          <div class="nav-title">Guichon <span style="color:var(--gold)">Hub</span></div>
+          <div class="nav-sub">Performance Analytics · Rugby</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="pulse"></div>
+        <span
+          style="font-size:.55rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text-muted)">Live</span>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="showPage('overview')" data-page="overview">Overview</button>
+      <button class="tab-btn" onclick="showPage('gps')" data-page="gps">GPS Partidos</button>
+      <button class="tab-btn" onclick="showPage('antro')" data-page="antro">Antro ISAK</button>
+      <button class="tab-btn" onclick="showPage('admin')" data-page="admin">Cargar ⚙</button>
+    </div>
+  </nav>
 
-<footer style="text-align:center;padding:2rem 1rem;position:relative;z-index:1;">
-  <p style="font-size:0.55rem;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:var(--text-muted);opacity:0.4;">Guichón Hub PRO © 2026 · Rugby Analytics</p>
-</footer>
+  <main>
 
-<script>
-// ============================================================
-//  DATA
-// ============================================================
-const STATE = {
-  antro: [
-    {f:'2021-08-24',p:78.1,m:50.89,a:19.52,s:40.2,endo:2.7,meso:5.6,ecto:1.9},
-    {f:'2021-10-05',p:79.8,m:51.59,a:19.05,s:39.9,endo:2.7,meso:5.6,ecto:1.9},
-    {f:'2021-11-23',p:81.1,m:52.02,a:19.48,s:43.0,endo:2.7,meso:5.6,ecto:1.9},
-    {f:'2022-08-31',p:82.9,m:51.69,a:18.16,s:43.0,endo:1.8,meso:7.8,ecto:2.3},
-    {f:'2022-10-01',p:84.6,m:53.15,a:16.57,s:36.0,endo:1.8,meso:7.8,ecto:2.3},
-    {f:'2022-11-16',p:84.9,m:52.96,a:16.76,s:37.0,endo:1.8,meso:7.8,ecto:2.3},
-    {f:'2023-03-01',p:84.8,m:49.44,a:19.82,s:49.0,endo:1.8,meso:7.8,ecto:2.3},
-    {f:'2023-04-26',p:86.3,m:52.06,a:17.02,s:37.0,endo:1.8,meso:7.8,ecto:2.3},
-    {f:'2023-10-18',p:84.8,m:51.71,a:17.03,s:35.5,endo:1.8,meso:7.8,ecto:2.3},
-    {f:'2023-12-15',p:84.2,m:53.25,a:15.92,s:31.5,endo:1.8,meso:7.8,ecto:2.3},
-    {f:'2025-11-18',p:83.3,m:55.00,a:18.00,s:34.0,endo:1.16,meso:5.08,ecto:2.37},
-    {f:'2026-02-02',p:85.1,m:54.92,a:18.18,s:39.0,endo:1.16,meso:5.08,ecto:2.15},
-    {f:'2026-03-19',p:86.4,m:55.78,a:16.91,s:33.0,endo:1.28,meso:5.43,ecto:1.99}
-  ],
-  gps: [
-    {r:'BACRC',d:6603,i:76.6,v:9.03,acc:32,dec:39,expl:0},
-    {r:'LPRC 2025',d:6813,i:72.66,v:8.87,acc:23,dec:30,expl:0},
-    {r:'Cuba XV',d:7682,i:78.58,v:9.39,acc:31,dec:45,expl:0},
-    {r:'BAC',d:6619,i:71.6,v:8.71,acc:27,dec:43,expl:0},
-    {r:'CASI',d:4540,i:70.74,v:9.06,acc:23,dec:28,expl:0},
-    {r:'CSL',d:2121,i:49.57,v:8.33,acc:11,dec:18,expl:0},
-    {r:'CRBV',d:7141,i:74.44,v:8.47,acc:30,dec:37,expl:0},
-    {r:'CSC 2026',d:5337,i:78.76,v:8.42,acc:25,dec:30,expl:71},
-    {r:'Hindu 2026',d:5775,i:73.03,v:8.24,acc:31,dec:24,expl:66},
-    {r:'LPRC 2026',d:5184,i:74.79,v:8.53,acc:29,dec:29,expl:92}
-  ],
-  chatHistory: []
-};
+    <!-- OVERVIEW -->
+    <div id="page-overview" class="page active">
+      <div class="ph">
+        <h1>Dashboard <span>General</span></h1>
+        <p>Temporada 2021–2026 · Ignacio Guichon · </p>
+      </div>
+      <div class="kpi-grid" id="kpi-ov"></div>
+      <div class="stack">
+        <div class="card">
+          <div class="ct">Intensidad (m/min) + Vel. Máx (m/s) — Cronológico</div>
+          <div class="cw"><canvas id="ovDualChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="ct">Resumen por Partido &nbsp;·&nbsp; <span style="color:var(--gold);font-size:.7em">★ = máximo
+              absoluto por métrica</span></div>
+          <div class="ts">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Rival</th>
+                  <th>Dist. (m)</th>
+                  <th>Int. (m/min)</th>
+                  <th>Vel. Máx (m/s)</th>
+                  <th>Min. Jug.</th>
+                  <th>Acc</th>
+                  <th>Dec</th>
+                  <th>Expl.</th>
+                </tr>
+              </thead>
+              <tbody id="ov-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="ct">Medición Actual</div>
+            <div id="antro-sidebar" class="stack" style="gap:0"></div>
+          </div>
+          <div class="card">
+            <div class="ct">Somatotipo</div>
+            <div class="cw"><canvas id="ovSomato"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-const CHARTS = {};
-const GREEN = '#00e896';
-const GOLD = '#f0c040';
-const RED = '#ff4d6d';
-const BLUE = '#38bdf8';
-const MUTED = 'rgba(90,138,122,0.5)';
+    <!-- GPS -->
+    <div id="page-gps" class="page">
+      <div class="ph">
+        <h1>GPS <span>Partidos</span></h1>
+        <p>Unidades: distancia en m · intensidad en m/min · velocidad en m/s</p>
+      </div>
+      <div class="kpi-grid" id="kpi-gps"></div>
+      <div class="stack">
+        <div class="card">
+          <div class="ct">Distancia Recorrida por Partido (m)</div>
+          <div class="cw"><canvas id="gpsDistChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="ct">Intensidad (m/min) — Cronológico</div>
+          <div class="cw"><canvas id="gpsIntChart"></canvas></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="ct">Aceleraciones vs Desaceleraciones</div>
+            <div class="cw"><canvas id="gpsAccDecChart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="ct">Velocidad Máxima (m/s)</div>
+            <div class="cw"><canvas id="gpsVelChart"></canvas></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ct">Acciones Explosivas — Todos los Partidos</div>
+          <div class="cw"><canvas id="gpsExplChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="ct">Tabla Detallada &nbsp;·&nbsp; <span style="color:var(--gold);font-size:.7em">★ = máximo por
+              métrica</span></div>
+          <div class="ts">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Rival</th>
+                  <th>Dist. (m)</th>
+                  <th>Int. (m/min)</th>
+                  <th>Vel. Máx (m/s)</th>
+                  <th>Min. Jug.</th>
+                  <th>Acc</th>
+                  <th>Dec</th>
+                  <th>Expl.</th>
+                  <th>Editar</th>
+                </tr>
+              </thead>
+              <tbody id="gps-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ct">Perfil GPS — Último Partido vs Referencia</div>
+          <div style="max-width:320px;margin:0 auto">
+            <div class="cw"><canvas id="gpsRadar"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-// Chart defaults
-Chart.defaults.color = 'rgba(232,245,240,0.5)';
-Chart.defaults.borderColor = 'rgba(0,232,150,0.08)';
-Chart.defaults.font.family = "'Barlow', sans-serif";
-Chart.defaults.font.size = 10;
+    <!-- ANTRO -->
+    <div id="page-antro" class="page">
+      <div class="ph">
+        <h1>Antro <span>ISAK</span></h1>
+        <p>Evolución 2021–2026 · Protocolo ISAK Nivel 1</p>
+      </div>
+      <div class="kpi-grid" id="kpi-antro"></div>
+      <div class="stack">
+        <div class="card">
+          <div class="ct">Peso Corporal (kg)</div>
+          <div class="cw"><canvas id="aWeight"></canvas></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="ct">Músculo (%)</div>
+            <div class="cw"><canvas id="aMuscle"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="ct">Grasa (%)</div>
+            <div class="cw"><canvas id="aFat"></canvas></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ct">Sumatorias ISAK 6Σ (mm)</div>
+          <div class="cw"><canvas id="aIsak"></canvas></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="ct">Somatotipo — Última Medición</div>
+            <div class="cw"><canvas id="aSomato"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="ct">Evolución Somatotipo</div>
+            <div class="cw"><canvas id="aSomatoLine"></canvas></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ct">Historial Completo ISAK</div>
+          <div class="ts">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Peso (kg)</th>
+                  <th>Músculo (%)</th>
+                  <th>Grasa (%)</th>
+                  <th>ISAK 6Σ (mm)</th>
+                  <th>Endo</th>
+                  <th>Meso</th>
+                  <th>Ecto</th>
+                  <th>Temp.</th>
+                </tr>
+              </thead>
+              <tbody id="antro-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
 
-const tickFont = { size: 9, family: "'Space Mono', monospace", weight: '400' };
-const baseOpts = (extra={}) => ({
-  responsive: true,
-  maintainAspectRatio: false,
-  animation: { duration: 600, easing: 'easeInOutQuart' },
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      backgroundColor: 'rgba(13,26,26,0.97)',
-      borderColor: 'rgba(0,232,150,0.2)',
-      borderWidth: 1,
-      titleColor: GREEN,
-      bodyColor: 'rgba(232,245,240,0.85)',
-      titleFont: { family: "'Space Mono', monospace", size: 10 },
-      bodyFont: { family: "'Barlow', sans-serif", size: 11 },
-      padding: 10,
-      cornerRadius: 6
+    <!-- ADMIN -->
+    <div id="page-admin" class="page">
+      <div class="ph">
+        <h1>Cargar <span>Datos</span></h1>
+        <p>Carga manual de partidos GPS · 100% offline</p>
+      </div>
+      <div class="stack">
+        <div class="card">
+          <div class="ct">Nuevo Partido GPS</div>
+          <p style="font-size:.72rem;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.75">
+            Completá los campos con los datos del reporte GPS. Los marcados con <span style="color:var(--red)">*</span>
+            son obligatorios.<br>
+            Unidades fijas: distancia en <strong style="color:var(--green)">m</strong>, intensidad en <strong
+              style="color:var(--green)">m/min</strong>, velocidad en <strong style="color:var(--green)">m/s</strong>.
+            Si tu reporte usa <strong style="color:var(--gold)">km/h</strong>, dividí por 3.6 para convertir a m/s.
+          </p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+            <div class="fwrap" style="grid-column:1/-1">
+              <label class="field-label">Rival <span style="color:var(--red)">*</span></label>
+              <input id="n-rival" class="field-input" type="text" placeholder="ej: Pucará, SIC, Hindú...">
+            </div>
+            <div class="fwrap">
+              <label class="field-label">Distancia (m) <span style="color:var(--red)">*</span></label>
+              <input id="n-dist" class="field-input" type="number" step="1" min="0" placeholder="ej: 6850">
+            </div>
+            <div class="fwrap">
+              <label class="field-label">Intensidad (m/min) <span style="color:var(--red)">*</span></label>
+              <input id="n-int" class="field-input" type="number" step="0.01" min="0" placeholder="ej: 77.30">
+            </div>
+            <div class="fwrap">
+              <label class="field-label">Vel. Máx (m/s) <span style="color:var(--red)">*</span></label>
+              <input id="n-vel" class="field-input" type="number" step="0.01" min="0" placeholder="ej: 9.12">
+            </div>
+            <div class="fwrap">
+              <label class="field-label">Min. Jugados</label>
+              <input id="n-min" class="field-input" type="number" step="1" min="0" max="120" placeholder="ej: 80">
+            </div>
+            <div class="fwrap">
+              <label class="field-label">Aceleraciones</label>
+              <input id="n-acc" class="field-input" type="number" step="1" min="0" placeholder="ej: 28">
+            </div>
+            <div class="fwrap">
+              <label class="field-label">Desaceleraciones</label>
+              <input id="n-dec" class="field-input" type="number" step="1" min="0" placeholder="ej: 33">
+            </div>
+            <div class="fwrap" style="grid-column:1/-1">
+              <label class="field-label">Acciones Explosivas</label>
+              <input id="n-expl" class="field-input" type="number" step="1" min="0"
+                placeholder="ej: 45  (dejá en 0 si no aplica)">
+            </div>
+          </div>
+          <div id="n-fb" class="fb"></div>
+          <button class="btn-save" onclick="saveNewGPS()" style="margin-top:1rem">+ Guardar Partido</button>
+        </div>
+
+        <div class="card">
+          <div class="ct">Estado de los Datos</div>
+          <div id="data-status"></div>
+        </div>
+
+        <div class="card">
+          <div class="ct">Exportar Datos</div>
+          <p style="font-size:.72rem;color:var(--text-muted);margin-bottom:.75rem">Descargá todos los datos en el
+            formato que prefieras.</p>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+            <button onclick="exportJSON()" class="btn-exp btn-exp-json">↓ Exportar JSON</button>
+            <button onclick="exportCSV()" class="btn-exp btn-exp-csv">↓ Exportar CSV</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+  <footer style="text-align:center;padding:2rem 1rem;position:relative;z-index:1">
+    <p
+      style="font-size:.55rem;font-weight:700;letter-spacing:.25em;text-transform:uppercase;color:var(--text-muted);opacity:.35">
+      Guichón Hub PRO © 2026 · Rugby Analytics · Offline Ready</p>
+  </footer>
+
+  <script>
+    // ============================================================
+    //  STATE
+    //  Canonical units:
+    //    d   = meters (m)
+    //    i   = meters/minute (m/min)
+    //    v   = meters/second (m/s)    ← always m/s, never km/h
+    //    min = minutes played (null if not recorded)
+    //    acc, dec, expl = integer counts
+    // ============================================================
+    const STATE = {
+      antro: [
+        { f: '2021-08-24', p: 78.1, m: 50.89, a: 19.52, s: 40.2, endo: 2.70, meso: 5.60, ecto: 1.90 },
+        { f: '2021-10-05', p: 79.8, m: 51.59, a: 19.05, s: 39.9, endo: 2.70, meso: 5.60, ecto: 1.90 },
+        { f: '2021-11-23', p: 81.1, m: 52.02, a: 19.48, s: 43.0, endo: 2.70, meso: 5.60, ecto: 1.90 },
+        { f: '2022-08-31', p: 82.9, m: 51.69, a: 18.16, s: 43.0, endo: 1.80, meso: 7.80, ecto: 2.30 },
+        { f: '2022-10-01', p: 84.6, m: 53.15, a: 16.57, s: 36.0, endo: 1.80, meso: 7.80, ecto: 2.30 },
+        { f: '2022-11-16', p: 84.9, m: 52.96, a: 16.76, s: 37.0, endo: 1.80, meso: 7.80, ecto: 2.30 },
+        { f: '2023-03-01', p: 84.8, m: 49.44, a: 19.82, s: 49.0, endo: 1.80, meso: 7.80, ecto: 2.30 },
+        { f: '2023-04-26', p: 86.3, m: 52.06, a: 17.02, s: 37.0, endo: 1.80, meso: 7.80, ecto: 2.30 },
+        { f: '2023-10-18', p: 84.8, m: 51.71, a: 17.03, s: 35.5, endo: 1.80, meso: 7.80, ecto: 2.30 },
+        { f: '2023-12-15', p: 84.2, m: 53.25, a: 15.92, s: 31.5, endo: 1.80, meso: 7.80, ecto: 2.30 },
+        { f: '2025-11-18', p: 83.3, m: 55.00, a: 18.00, s: 34.0, endo: 1.16, meso: 5.08, ecto: 2.37 },
+        { f: '2026-02-02', p: 85.1, m: 54.92, a: 18.18, s: 39.0, endo: 1.16, meso: 5.08, ecto: 2.15 },
+        { f: '2026-03-19', p: 86.4, m: 55.78, a: 16.91, s: 33.0, endo: 1.28, meso: 5.43, ecto: 1.99 }
+      ],
+      gps: [
+        { r: "BACRC '25", d: 6603, i: 76.60, v: 9.03, min: 70, acc: 32, dec: 39, expl: 75 },
+        { r: "LPRC '25", d: 6813, i: 72.66, v: 8.87, min: 80, acc: 23, dec: 30, expl: 75 },
+        { r: "CUBA '25", d: 7682, i: 78.58, v: 9.39, min: 80, acc: 31, dec: 45, expl: 75 },
+        { r: "BAC '25", d: 6619, i: 71.60, v: 8.71, min: 80, acc: 27, dec: 43, expl: 75 },
+        { r: "CASI '25", d: 4540, i: 70.74, v: 9.06, min: 65, acc: 23, dec: 28, expl: 75 },
+        { r: "CSL '25", d: 2121, i: 49.57, v: 8.33, min: 24, acc: 11, dec: 18, expl: 75 },
+        { r: "CRBV '25", d: 7141, i: 74.44, v: 8.47, min: 80, acc: 30, dec: 37, expl: 75 },
+        { r: "CSC '26", d: 5337, i: 78.76, v: 8.42, min: 60, acc: 25, dec: 30, expl: 71 },
+        { r: "HINDÚ '26", d: 5775, i: 73.03, v: 8.24, min: 65, acc: 31, dec: 24, expl: 66 },
+        { r: "LPRC '26", d: 5184, i: 74.79, v: 8.53, min: 60, acc: 29, dec: 29, expl: 92 }
+      ]
+    };
+
+    let _editIdx = null;
+    const CHARTS = {};
+    const GREEN = '#00e896', GOLD = '#f0c040', RED = '#ff4d6d', BLUE = '#38bdf8';
+
+    // Chart.js defaults
+    Chart.defaults.color = 'rgba(232,245,240,0.5)';
+    Chart.defaults.borderColor = 'rgba(0,232,150,0.08)';
+    Chart.defaults.font.family = "'Barlow',sans-serif";
+    Chart.defaults.font.size = 10;
+
+    const TF = { size: 9, family: "'Space Mono',monospace", weight: '400' };
+    const TT = {
+      backgroundColor: 'rgba(13,26,26,0.97)', borderColor: 'rgba(0,232,150,0.2)', borderWidth: 1,
+      titleColor: GREEN, bodyColor: 'rgba(232,245,240,0.85)',
+      titleFont: { family: "'Space Mono',monospace", size: 10 },
+      bodyFont: { family: "'Barlow',sans-serif", size: 11 },
+      padding: 10, cornerRadius: 6
+    };
+    const XS = { ticks: { font: TF, maxRotation: 40 }, grid: { color: 'rgba(0,232,150,0.05)' } };
+    const YS = { ticks: { font: TF }, grid: { color: 'rgba(0,232,150,0.06)' } };
+
+    function bOpts(extra) {
+      return {
+        responsive: true, maintainAspectRatio: false, animation: { duration: 600, easing: 'easeInOutQuart' },
+        plugins: { legend: { display: false }, tooltip: TT }, scales: { x: XS, y: YS }, ...(extra || {})
+      };
     }
-  },
-  scales: {
-    x: { ticks: { font: tickFont, maxRotation: 45 }, grid: { color: 'rgba(0,232,150,0.05)' } },
-    y: { ticks: { font: tickFont }, grid: { color: 'rgba(0,232,150,0.06)' } }
-  },
-  ...extra
-});
+    function mkC(id, type, data, opts) {
+      const ctx = document.getElementById(id);
+      if (!ctx) return;
+      if (CHARTS[id]) CHARTS[id].destroy();
+      CHARTS[id] = new Chart(ctx, { type, data, options: opts || bOpts() });
+      return CHARTS[id];
+    }
 
-function mkChart(id, type, data, opts) {
-  const ctx = document.getElementById(id);
-  if (!ctx) return;
-  if (CHARTS[id]) CHARTS[id].destroy();
-  CHARTS[id] = new Chart(ctx, { type, data, options: opts || baseOpts() });
-  return CHARTS[id];
-}
+    // ── NAVIGATION ────────────────────────────────────────────
+    function showPage(name) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('page-' + name).classList.add('active');
+      document.querySelector(`[data-page="${name}"]`).classList.add('active');
+      ({ overview: renderOverview, gps: renderGPS, antro: renderAntro, admin: renderAdmin }[name] || function () { })();
+    }
 
-// ============================================================
-//  NAVIGATION
-// ============================================================
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  document.querySelector(`[data-page="${name}"]`).classList.add('active');
-  renderPage(name);
-}
-
-function renderPage(name) {
-  const fns = {
-    overview: renderOverview,
-    gps: renderGPS,
-    antro: renderAntro,
-    comparativa: renderComparativa,
-    ai: renderAI,
-    admin: renderAdmin
-  };
-  if (fns[name]) fns[name]();
-}
-
-// ============================================================
-//  HELPERS
-// ============================================================
-function trend(curr, prev, unit='', inverse=false) {
-  const diff = curr - prev;
-  const pct = ((diff / prev) * 100).toFixed(1);
-  const isGood = inverse ? diff < 0 : diff > 0;
-  const cls = diff === 0 ? 'trend-neutral' : (isGood ? 'trend-up' : 'trend-down');
-  const arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
-  return `<span class="${cls}">${arrow} ${Math.abs(diff).toFixed(2)}${unit} (${Math.abs(pct)}%)</span>`;
-}
-
-function season(dateStr) {
-  const y = parseInt(dateStr.substring(0,4));
-  if (y <= 2021) return '<span class="season-tag">2021</span>';
-  if (y === 2022) return '<span class="season-tag">2022</span>';
-  if (y === 2023) return '<span class="season-tag">2023</span>';
-  if (y === 2025) return '<span class="season-tag">2025</span>';
-  return '<span class="season-tag">2026</span>';
-}
-
-function normRange(val, min, max) {
-  return Math.round(((val - min) / (max - min)) * 100);
-}
-
-function kpiCard(label, value, unit, trendHtml='', accent='var(--green)') {
-  return `<div class="kpi-card" style="--accent:${accent}">
-    <div class="kpi-label">${label}</div>
-    <div class="kpi-value">${value}<span class="kpi-unit">${unit}</span></div>
-    ${trendHtml ? `<div class="kpi-trend">${trendHtml}</div>` : ''}
+    // ── HELPERS ───────────────────────────────────────────────
+    function trend(curr, prev, unit, inverse) {
+      const d = curr - prev, p = ((d / prev) * 100).toFixed(1);
+      const good = inverse ? d < 0 : d > 0;
+      const cls = d === 0 ? 'trend-n' : (good ? 'trend-up' : 'trend-down');
+      const arr = d > 0 ? '↑' : d < 0 ? '↓' : '→';
+      return `<span class="${cls}">${arr} ${Math.abs(d).toFixed(2)}${unit} (${Math.abs(p)}%)</span>`;
+    }
+    function season(f) {
+      const y = parseInt(f);
+      const m = { 2021: '2021', 2022: '2022', 2023: '2023', 2025: '2025', 2026: '2026' };
+      return `<span class="season-tag">${m[y] || y}</span>`;
+    }
+    function nRange(v, mn, mx) { return mx === mn ? 0 : Math.round(((v - mn) / (mx - mn)) * 100); }
+    function kpi(label, val, unit, tr, accent) {
+      accent = accent || 'var(--green)';
+      return `<div class="kpi" style="--ka:${accent}">
+    <div class="kl">${label}</div>
+    <div class="kv">${val}<span class="ku">${unit}</span></div>
+    ${tr ? `<div class="kt">${tr}</div>` : ''}
   </div>`;
-}
+    }
 
-// ============================================================
-//  OVERVIEW
-// ============================================================
-function renderOverview() {
-  const lastA = STATE.antro[STATE.antro.length-1];
-  const prevA = STATE.antro[STATE.antro.length-2];
-  const lastG = STATE.gps[STATE.gps.length-1];
-  const avgI = (STATE.gps.reduce((a,g)=>a+g.i,0)/STATE.gps.length).toFixed(1);
-  const maxV = Math.max(...STATE.gps.map(g=>g.v)).toFixed(2);
+    // Compute index of max value for each GPS metric
+    function gpsRec(data) {
+      const keys = ['d', 'i', 'v', 'min', 'acc', 'dec', 'expl'];
+      const r = {};
+      keys.forEach(k => {
+        let best = -Infinity, idx = -1;
+        data.forEach((g, i) => { if (g[k] != null && g[k] > best) { best = g[k]; idx = i; } });
+        r[k] = idx;
+      });
+      return r;
+    }
 
-  document.getElementById('kpi-overview').innerHTML = 
-    kpiCard('Peso Actual','86.4','kg', trend(lastA.p, prevA.p, 'kg'), 'var(--gold)') +
-    kpiCard('% Músculo', lastA.m.toFixed(1),'%', trend(lastA.m, prevA.m,'%')) +
-    kpiCard('V.Max GPS', maxV,'m/s','','var(--blue)') +
-    kpiCard('Int. Promedio', avgI,'m/min', '', 'var(--gold)');
+    // Build a <td> — gold+star if record, plain otherwise
+    function tdR(display, isRec) {
+      return isRec
+        ? `<td class="cell-rec">${display}<span class="star">★</span></td>`
+        : `<td class="cell-plain">${display}</td>`;
+    }
 
-  // Dual line chart
-  const labels = STATE.gps.map(g=>g.r);
-  mkChart('overviewDualChart','line',{
-    labels,
-    datasets:[
-      {
-        label:'Intensidad m/min',
-        data: STATE.gps.map(g=>g.i),
-        borderColor: GREEN, backgroundColor:'rgba(0,232,150,0.06)',
-        tension:0.4, borderWidth:2.5, fill:true, yAxisID:'y'
-      },
-      {
-        label:'Vel.Máx m/s',
-        data: STATE.gps.map(g=>g.v*10),
-        borderColor: GOLD, backgroundColor:'rgba(240,192,64,0.04)',
-        tension:0.4, borderWidth:2, borderDash:[4,3], fill:false, yAxisID:'y1'
-      }
-    ]
-  }, {
-    ...baseOpts(),
-    plugins:{
-      ...baseOpts().plugins,
-      legend:{
-        display:true,
-        labels:{ color:'rgba(232,245,240,0.6)', font:{size:10}, boxWidth:10, padding:16 }
-      },
-      tooltip:{
-        ...baseOpts().plugins.tooltip,
-        callbacks:{
-          label: ctx => ctx.datasetIndex===1 ? `Vel.Máx: ${(ctx.raw/10).toFixed(2)}m/s` : `Intensidad: ${ctx.raw} m/min`
+    // ── OVERVIEW ─────────────────────────────────────────────
+    function renderOverview() {
+      const g = STATE.gps, a = STATE.antro;
+      const lastA = a[a.length - 1], prevA = a[a.length - 2];
+      const maxV = Math.max(...g.map(x => x.v));
+      const avgI = g.reduce((s, x) => s + x.i, 0) / g.length;
+
+      document.getElementById('kpi-ov').innerHTML =
+        kpi('Peso Actual', lastA.p, 'kg', trend(lastA.p, prevA.p, 'kg'), 'var(--gold)') +
+        kpi('% Músculo', lastA.m.toFixed(1), '%', trend(lastA.m, prevA.m, '%')) +
+        kpi('Vel. Máx', maxV.toFixed(2), 'm/s', '', 'var(--blue)') +
+        kpi('Int. Promedio', avgI.toFixed(1), 'm/min', '', 'var(--gold)');
+
+      // Dual chart — both on their own Y axes, real units, no scaling tricks
+      mkC('ovDualChart', 'line', {
+        labels: g.map(x => x.r),
+        datasets: [
+          {
+            label: 'Intensidad (m/min)', data: g.map(x => x.i),
+            borderColor: GREEN, backgroundColor: 'rgba(0,232,150,0.06)',
+            tension: 0.4, borderWidth: 2.5, fill: true, yAxisID: 'y'
+          },
+          {
+            label: 'Vel. Máx (m/s)', data: g.map(x => x.v),
+            borderColor: GOLD, backgroundColor: 'rgba(240,192,64,0.04)',
+            tension: 0.4, borderWidth: 2, borderDash: [4, 3], fill: false, yAxisID: 'y1'
+          }
+        ]
+      }, {
+        ...bOpts(),
+        plugins: {
+          legend: { display: true, labels: { color: 'rgba(232,245,240,0.6)', font: { size: 10 }, boxWidth: 10, padding: 16 } },
+          tooltip: {
+            ...TT, callbacks: {
+              label: ctx => ctx.datasetIndex === 0
+                ? `Intensidad: ${ctx.raw.toFixed(2)} m/min`
+                : `Vel. Máx: ${ctx.raw.toFixed(2)} m/s`
+            }
+          }
+        },
+        scales: {
+          x: XS,
+          y: { position: 'left', ticks: { font: TF, callback: v => v.toFixed(0) + ' m/min' }, grid: { color: 'rgba(0,232,150,0.06)' } },
+          y1: { position: 'right', ticks: { font: TF, callback: v => v.toFixed(2) + ' m/s' }, grid: { drawOnChartArea: false } }
         }
-      }
-    },
-    scales:{
-      x:{ ticks:{font:tickFont,maxRotation:40}, grid:{color:'rgba(0,232,150,0.05)'} },
-      y:{ position:'left', ticks:{font:tickFont}, grid:{color:'rgba(0,232,150,0.06)'} },
-      y1:{ position:'right', ticks:{font:tickFont, callback:v=>(v/10).toFixed(1)+'m/s'}, grid:{drawOnChartArea:false} }
-    }
-  });
+      });
 
-  // Overview table
-  const tbody = document.getElementById('overview-tbody');
-  tbody.innerHTML = STATE.gps.map((g,i) => {
-    const avgDist = STATE.gps.reduce((a,x)=>a+x.d,0)/STATE.gps.length;
-    const avgInt = STATE.gps.reduce((a,x)=>a+x.i,0)/STATE.gps.length;
-    return `<tr>
-      <td><span class="highlight">${g.r}</span></td>
-      <td class="${g.d>=avgDist?'highlight':''}">${g.d.toLocaleString()}</td>
-      <td class="${g.i>=avgInt?'highlight':''}">${g.i.toFixed(1)}</td>
-      <td>${g.v.toFixed(2)}</td>
-      <td>${g.acc}</td>
-      <td>${g.dec}</td>
-      <td>${g.expl > 0 ? `<span class="badge badge-gold">${g.expl}</span>` : '<span class="dim">—</span>'}</td>
+      // Overview summary table — ★ on max of each metric
+      const rec = gpsRec(g);
+      document.getElementById('ov-tbody').innerHTML = g.map((row, i) => {
+        const minDisp = row.min != null ? row.min + "'" : '—';
+        const explDisp = row.expl > 0 ? row.expl : '—';
+        return `<tr>
+      <td class="dim">${i + 1}</td>
+      <td style="font-weight:600">${row.r}</td>
+      ${tdR(row.d.toLocaleString('es-AR'), rec.d === i)}
+      ${tdR(row.i.toFixed(2), rec.i === i)}
+      ${tdR(row.v.toFixed(2), rec.v === i)}
+      ${tdR(minDisp, rec.min === i && row.min != null)}
+      ${tdR(row.acc, rec.acc === i)}
+      ${tdR(row.dec, rec.dec === i)}
+      ${tdR(explDisp, rec.expl === i && row.expl > 0)}
     </tr>`;
-  }).join('');
+      }).join('');
 
-  // Antro latest
-  const s = document.getElementById('antro-latest-stats');
-  const items = [
-    {l:'Peso', v:`${lastA.p} kg`, accent:'var(--gold)'},
-    {l:'Masa Muscular', v:`${lastA.m}%`, accent:'var(--green)'},
-    {l:'Masa Grasa', v:`${lastA.a}%`, accent:'var(--red)'},
-    {l:'ISAK 6 Σ', v:`${lastA.s} mm`, accent:'var(--blue)'},
-  ];
-  s.innerHTML = items.map(item => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;border-bottom:1px solid rgba(0,232,150,0.06);">
-      <span style="font-size:0.7rem;color:var(--text-muted);">${item.l}</span>
-      <span style="font-family:'Space Mono',monospace;font-size:0.85rem;font-weight:700;color:${item.accent};">${item.v}</span>
-    </div>
-  `).join('');
+      // Antro sidebar
+      const items = [
+        { l: 'Peso', v: `${lastA.p} kg`, c: 'var(--gold)' },
+        { l: 'Masa Muscular', v: `${lastA.m.toFixed(2)}%`, c: 'var(--green)' },
+        { l: 'Masa Grasa', v: `${lastA.a.toFixed(2)}%`, c: 'var(--red)' },
+        { l: 'ISAK 6Σ', v: `${lastA.s} mm`, c: 'var(--blue)' }
+      ];
+      document.getElementById('antro-sidebar').innerHTML = items.map(it => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:.45rem 0;border-bottom:1px solid rgba(0,232,150,0.06)">
+      <span style="font-size:.7rem;color:var(--text-muted)">${it.l}</span>
+      <span style="font-family:'Space Mono',monospace;font-size:.85rem;font-weight:700;color:${it.c}">${it.v}</span>
+    </div>`).join('');
 
-  // Somatotype radar
-  mkChart('overviewSomato','radar',{
-    labels:['Endomorfia','Mesomorfia','Ectomorfia'],
-    datasets:[{
-      data:[lastA.endo, lastA.meso, lastA.ecto],
-      borderColor: GREEN, backgroundColor:'rgba(0,232,150,0.12)',
-      borderWidth:2.5, pointBackgroundColor: GREEN, pointRadius:4
-    }]
-  },{
-    responsive:true, maintainAspectRatio:false,
-    animation:{duration:600},
-    plugins:{ legend:{display:false}, tooltip:{...baseOpts().plugins.tooltip} },
-    scales:{ r:{
-      suggestedMin:0, suggestedMax:9,
-      ticks:{ display:false, stepSize:2 },
-      grid:{ color:'rgba(0,232,150,0.1)' },
-      angleLines:{ color:'rgba(0,232,150,0.15)' },
-      pointLabels:{ font:{size:10, family:"'Barlow Condensed',sans-serif", weight:'700'}, color:'rgba(232,245,240,0.7)' }
-    }}
-  });
-}
-
-// ============================================================
-//  GPS
-// ============================================================
-function renderGPS() {
-  const g = STATE.gps;
-  const last = g[g.length-1];
-  const maxD = Math.max(...g.map(x=>x.d));
-  const maxI = Math.max(...g.map(x=>x.i));
-  const maxV = Math.max(...g.map(x=>x.v));
-  const avgI = (g.reduce((a,x)=>a+x.i,0)/g.length).toFixed(1);
-
-  document.getElementById('gps-kpi').innerHTML =
-    kpiCard('Máx Distancia', maxD.toLocaleString(),'m','','var(--gold)') +
-    kpiCard('Mayor Intensidad', maxI.toFixed(1),'m/min','') +
-    kpiCard('Vel. Máxima', maxV.toFixed(2),'m/s','','var(--blue)') +
-    kpiCard('Int. Promedio', avgI,'m/min','','var(--gold)');
-
-  const labels = g.map(x=>x.r);
-  const avgDistVal = g.reduce((a,x)=>a+x.d,0)/g.length;
-  const avgIntVal = g.reduce((a,x)=>a+x.i,0)/g.length;
-
-  // Distance bar
-  mkChart('gpsDistChart','bar',{
-    labels,
-    datasets:[{
-      data: g.map(x=>x.d),
-      backgroundColor: g.map(x=>x.d>=avgDistVal?'rgba(0,232,150,0.7)':'rgba(0,232,150,0.25)'),
-      borderColor: g.map(x=>x.d>=avgDistVal?GREEN:'rgba(0,232,150,0.4)'),
-      borderWidth:1, borderRadius:4
-    }]
-  },{
-    ...baseOpts(),
-    plugins:{
-      ...baseOpts().plugins,
-      annotation:{ annotations:{
-        avgLine:{ type:'line', yMin:avgDistVal, yMax:avgDistVal, borderColor:GOLD, borderWidth:1.5, borderDash:[6,3],
-          label:{ content:`Prom: ${avgDistVal.toFixed(0)}m`, enabled:true, color:GOLD, font:{size:9}, backgroundColor:'rgba(0,0,0,0.5)' } }
-      }}
+      // Somatotype radar
+      mkC('ovSomato', 'radar', {
+        labels: ['Endomorfia', 'Mesomorfia', 'Ectomorfia'],
+        datasets: [{
+          data: [lastA.endo, lastA.meso, lastA.ecto],
+          borderColor: GREEN, backgroundColor: 'rgba(0,232,150,0.12)', borderWidth: 2.5, pointBackgroundColor: GREEN, pointRadius: 4
+        }]
+      }, {
+        responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
+        plugins: { legend: { display: false }, tooltip: TT },
+        scales: {
+          r: {
+            suggestedMin: 0, suggestedMax: 9, ticks: { display: false },
+            grid: { color: 'rgba(0,232,150,0.1)' }, angleLines: { color: 'rgba(0,232,150,0.15)' },
+            pointLabels: { font: { size: 10, family: "'Barlow Condensed',sans-serif", weight: '700' }, color: 'rgba(232,245,240,0.7)' }
+          }
+        }
+      });
     }
-  });
 
-  // Intensity line
-  mkChart('gpsIntChart','line',{
-    labels,
-    datasets:[{
-      data: g.map(x=>x.i),
-      borderColor: GREEN, backgroundColor:'rgba(0,232,150,0.07)',
-      tension:0.45, borderWidth:2.5, fill:true,
-      pointBackgroundColor: g.map(x=>x.i>=avgIntVal?GREEN:'rgba(0,232,150,0.3)'),
-      pointRadius: g.map(x=>x.i>=avgIntVal?5:3)
-    }]
-  },{
-    ...baseOpts(),
-    plugins:{
-      ...baseOpts().plugins,
-      annotation:{ annotations:{
-        avgLine2:{ type:'line', yMin:avgIntVal, yMax:avgIntVal, borderColor:GOLD, borderWidth:1.5, borderDash:[5,4],
-          label:{ content:`Prom: ${avgIntVal.toFixed(1)}`, enabled:true, color:GOLD, font:{size:9}, backgroundColor:'rgba(0,0,0,0.5)' } }
-      }}
-    }
-  });
+    // ── GPS ──────────────────────────────────────────────────
+    function renderGPS() {
+      const g = STATE.gps;
+      const last = g[g.length - 1];
+      const maxD = Math.max(...g.map(x => x.d));
+      const maxI = Math.max(...g.map(x => x.i));
+      const maxV = Math.max(...g.map(x => x.v));
+      const maxAcc = Math.max(...g.map(x => x.acc));
+      const maxDec = Math.max(...g.map(x => x.dec));
+      const avgD = g.reduce((s, x) => s + x.d, 0) / g.length;
+      const avgI = g.reduce((s, x) => s + x.i, 0) / g.length;
+      const labels = g.map(x => x.r);
+      const rec = gpsRec(g);
 
-  // Acc/Dec grouped bar
-  mkChart('gpsAccDecChart','bar',{
-    labels,
-    datasets:[
-      { label:'Acc', data:g.map(x=>x.acc), backgroundColor:'rgba(0,232,150,0.65)', borderRadius:3 },
-      { label:'Dec', data:g.map(x=>x.dec), backgroundColor:'rgba(255,77,109,0.55)', borderRadius:3 }
-    ]
-  },{
-    ...baseOpts(),
-    plugins:{
-      ...baseOpts().plugins,
-      legend:{ display:true, labels:{ color:'rgba(232,245,240,0.6)', font:{size:9}, boxWidth:8, padding:12 } }
-    }
-  });
+      document.getElementById('kpi-gps').innerHTML =
+        kpi('Máx Distancia', maxD.toLocaleString('es-AR'), 'm', '', 'var(--gold)') +
+        kpi('Máx Intensidad', maxI.toFixed(2), 'm/min') +
+        kpi('Vel. Máxima', maxV.toFixed(2), 'm/s', '', 'var(--blue)') +
+        kpi('Int. Promedio', avgI.toFixed(2), 'm/min', '', 'var(--gold)');
 
-  // Velocity line
-  mkChart('gpsVelChart','line',{
-    labels,
-    datasets:[{
-      data:g.map(x=>x.v),
-      borderColor:BLUE, backgroundColor:'rgba(56,189,248,0.07)',
-      tension:0.4, borderWidth:2.5, fill:true,
-      pointBackgroundColor:BLUE, pointRadius:4
-    }]
-  });
+      // Distance bar — gold on record, green on above-avg, dim otherwise
+      mkC('gpsDistChart', 'bar', {
+        labels,
+        datasets: [{
+          data: g.map(x => x.d),
+          backgroundColor: g.map((x, i) => rec.d === i ? 'rgba(240,192,64,0.78)' : x.d >= avgD ? 'rgba(0,232,150,0.65)' : 'rgba(0,232,150,0.2)'),
+          borderColor: g.map((x, i) => rec.d === i ? GOLD : x.d >= avgD ? GREEN : 'rgba(0,232,150,0.3)'),
+          borderWidth: 1, borderRadius: 4
+        }]
+      }, {
+        ...bOpts(),
+        plugins: {
+          ...bOpts().plugins,
+          annotation: {
+            annotations: {
+              avgL: {
+                type: 'line', yMin: avgD, yMax: avgD, borderColor: GOLD, borderWidth: 1.5, borderDash: [6, 3],
+                label: { content: `Prom: ${avgD.toFixed(0)} m`, display: true, color: GOLD, font: { size: 9, family: "'Space Mono',monospace" }, backgroundColor: 'rgba(0,0,0,0.55)', padding: 4 }
+              }
+            }
+          }
+        },
+        scales: { x: XS, y: { ...YS, ticks: { ...YS.ticks, callback: v => v.toLocaleString('es-AR') + ' m' } } }
+      });
 
-  // Explosivos (últimos 5)
-  const lastFive = g.slice(-5);
-  mkChart('gpsExplChart','bar',{
-    labels: lastFive.map(x=>x.r),
-    datasets:[{
-      data: lastFive.map(x=>x.expl),
-      backgroundColor: lastFive.map(x=>x.expl>0?'rgba(240,192,64,0.7)':'rgba(240,192,64,0.15)'),
-      borderColor: lastFive.map(x=>x.expl>0?GOLD:'rgba(240,192,64,0.2)'),
-      borderWidth:1, borderRadius:4
-    }]
-  });
+      // Intensity line — gold point on record
+      mkC('gpsIntChart', 'line', {
+        labels,
+        datasets: [{
+          data: g.map(x => x.i),
+          borderColor: GREEN, backgroundColor: 'rgba(0,232,150,0.07)',
+          tension: 0.45, borderWidth: 2.5, fill: true,
+          pointBackgroundColor: g.map((x, i) => rec.i === i ? GOLD : GREEN),
+          pointRadius: g.map((x, i) => rec.i === i ? 6 : 3.5),
+          pointBorderColor: g.map((x, i) => rec.i === i ? GOLD : GREEN),
+          pointBorderWidth: g.map((x, i) => rec.i === i ? 2 : 0)
+        }]
+      }, {
+        ...bOpts(),
+        plugins: {
+          ...bOpts().plugins,
+          annotation: {
+            annotations: {
+              avgL2: {
+                type: 'line', yMin: avgI, yMax: avgI, borderColor: GOLD, borderWidth: 1.5, borderDash: [5, 4],
+                label: { content: `Prom: ${avgI.toFixed(1)} m/min`, display: true, color: GOLD, font: { size: 9, family: "'Space Mono',monospace" }, backgroundColor: 'rgba(0,0,0,0.55)', padding: 4 }
+              }
+            }
+          }
+        },
+        scales: { x: XS, y: { ...YS, ticks: { ...YS.ticks, callback: v => v.toFixed(0) + ' m/min' } } }
+      });
 
-  // Detail table
-  const tbody = document.getElementById('gps-detail-tbody');
-  tbody.innerHTML = g.map((x,i) => {
-    const isMax = x.d === maxD || x.v === maxV || x.i === maxI;
-    return `<tr>
-      <td class="dim">${i+1}</td>
-      <td><b>${x.r}</b></td>
-      <td class="${x.d>=avgDistVal?'highlight':''}">${x.d.toLocaleString()}</td>
-      <td class="${x.i>=avgIntVal?'highlight':''}">${x.i.toFixed(1)}</td>
-      <td class="${x.v===maxV?'highlight':''}">${x.v.toFixed(2)}</td>
-      <td>${x.acc}</td>
-      <td>${x.dec}</td>
-      <td>${x.expl > 0 ? `<span class="badge badge-gold">${x.expl}</span>` : '<span class="dim">—</span>'}</td>
-      <td>${isMax ? '<span class="badge badge-green">TOP</span>' : ''}</td>
+      // Acc/Dec grouped
+      mkC('gpsAccDecChart', 'bar', {
+        labels,
+        datasets: [
+          { label: 'Acc', data: g.map(x => x.acc), backgroundColor: 'rgba(0,232,150,0.65)', borderRadius: 3, borderSkipped: false },
+          { label: 'Dec', data: g.map(x => x.dec), backgroundColor: 'rgba(255,77,109,0.55)', borderRadius: 3, borderSkipped: false }
+        ]
+      }, {
+        ...bOpts(),
+        plugins: {
+          ...bOpts().plugins,
+          legend: { display: true, labels: { color: 'rgba(232,245,240,0.6)', font: { size: 9 }, boxWidth: 8, padding: 12 } }
+        }
+      });
+
+      // Velocity line — gold point on record
+      mkC('gpsVelChart', 'line', {
+        labels,
+        datasets: [{
+          data: g.map(x => x.v),
+          borderColor: BLUE, backgroundColor: 'rgba(56,189,248,0.07)',
+          tension: 0.4, borderWidth: 2.5, fill: true,
+          pointBackgroundColor: g.map((x, i) => rec.v === i ? GOLD : BLUE),
+          pointRadius: g.map((x, i) => rec.v === i ? 6 : 3.5)
+        }]
+      }, {
+        ...bOpts(),
+        scales: { x: XS, y: { ...YS, ticks: { ...YS.ticks, callback: v => v.toFixed(2) + ' m/s' } } }
+      });
+
+      // Explosivos — all matches, gold on record
+      mkC('gpsExplChart', 'bar', {
+        labels,
+        datasets: [{
+          data: g.map(x => x.expl),
+          backgroundColor: g.map((x, i) => rec.expl === i && x.expl > 0 ? 'rgba(240,192,64,0.82)' : x.expl > 0 ? 'rgba(240,192,64,0.5)' : 'rgba(240,192,64,0.1)'),
+          borderColor: g.map((x, i) => rec.expl === i && x.expl > 0 ? GOLD : x.expl > 0 ? 'rgba(240,192,64,0.65)' : 'rgba(240,192,64,0.18)'),
+          borderWidth: 1, borderRadius: 4
+        }]
+      }, {
+        ...bOpts(),
+        scales: { x: XS, y: { ...YS, ticks: { ...YS.ticks, stepSize: 10 } } }
+      });
+
+      // Detailed table — ★ per metric, edit button per row
+      document.getElementById('gps-tbody').innerHTML = g.map((x, i) => {
+        const minDisp = x.min != null ? x.min + "'" : '—';
+        const explDisp = x.expl > 0 ? x.expl : '—';
+        return `<tr>
+      <td class="dim">${i + 1}</td>
+      <td style="font-weight:600">${x.r}</td>
+      ${tdR(x.d.toLocaleString('es-AR'), rec.d === i)}
+      ${tdR(x.i.toFixed(2), rec.i === i)}
+      ${tdR(x.v.toFixed(2), rec.v === i)}
+      ${tdR(minDisp, rec.min === i && x.min != null)}
+      ${tdR(x.acc, rec.acc === i)}
+      ${tdR(x.dec, rec.dec === i)}
+      ${tdR(explDisp, rec.expl === i && x.expl > 0)}
+      <td><button class="btn-edit" onclick="openEdit(${i})">✎ Editar</button></td>
     </tr>`;
-  }).join('');
+      }).join('');
 
-  // Radar de perfil último partido
-  const maxes = { d:maxD, i:maxI, v:maxV, acc:Math.max(...g.map(x=>x.acc)), dec:Math.max(...g.map(x=>x.dec)) };
-  mkChart('gpsRadar','radar',{
-    labels:['Distancia','Intensidad','Vel.Máx','Aceleraciones','Desacel.'],
-    datasets:[
-      {
-        label: last.r,
-        data:[
-          normRange(last.d,0,maxes.d),
-          normRange(last.i,0,maxes.i),
-          normRange(last.v,0,maxes.v),
-          normRange(last.acc,0,maxes.acc),
-          normRange(last.dec,0,maxes.dec)
-        ],
-        borderColor:GREEN, backgroundColor:'rgba(0,232,150,0.15)', borderWidth:2.5, pointBackgroundColor:GREEN, pointRadius:4
-      },
-      {
-        label:'Mejor partido',
-        data:[100,100,100,100,100],
-        borderColor:'rgba(240,192,64,0.3)', backgroundColor:'rgba(240,192,64,0.04)',
-        borderWidth:1, borderDash:[4,3], pointRadius:0
-      }
-    ]
-  },{
-    responsive:true, maintainAspectRatio:false, animation:{duration:600},
-    plugins:{
-      legend:{ display:true, labels:{ color:'rgba(232,245,240,0.5)', font:{size:9}, boxWidth:8, padding:12 } },
-      tooltip:{...baseOpts().plugins.tooltip}
-    },
-    scales:{r:{
-      suggestedMin:0, suggestedMax:100,
-      ticks:{display:false, stepSize:25},
-      grid:{color:'rgba(0,232,150,0.1)'},
-      angleLines:{color:'rgba(0,232,150,0.12)'},
-      pointLabels:{font:{size:9,family:"'Barlow Condensed',sans-serif",weight:'700'},color:'rgba(232,245,240,0.7)'}
-    }}
-  });
-}
-
-// ============================================================
-//  ANTRO
-// ============================================================
-function renderAntro() {
-  const a = STATE.antro;
-  const last = a[a.length-1];
-  const prev = a[a.length-2];
-  const first = a[0];
-
-  document.getElementById('antro-kpi').innerHTML =
-    kpiCard('Peso', last.p,'kg', trend(last.p,prev.p,'kg'), 'var(--gold)') +
-    kpiCard('Músculo', last.m.toFixed(1),'%', trend(last.m,prev.m,'%')) +
-    kpiCard('Grasa', last.a.toFixed(1),'%', trend(last.a,prev.a,'%',true),'var(--red)') +
-    kpiCard('ISAK 6Σ', last.s,'mm', trend(last.s,prev.s,'mm',true),'var(--blue)');
-
-  const labels = a.map(x=>x.f.substring(5,10));
-
-  mkChart('antroWeightChart','line',{
-    labels,
-    datasets:[{
-      data:a.map(x=>x.p),
-      borderColor:GOLD, backgroundColor:'rgba(240,192,64,0.06)',
-      tension:0.4, borderWidth:2.5, fill:true,
-      pointBackgroundColor:GOLD, pointRadius:3
-    }]
-  },{
-    ...baseOpts(),
-    scales:{
-      x:{ticks:{font:tickFont,maxRotation:45},grid:{color:'rgba(0,232,150,0.05)'}},
-      y:{ticks:{font:tickFont,callback:v=>v+'kg'},grid:{color:'rgba(0,232,150,0.06)'},min:76,max:90}
+      // Radar last match
+      mkC('gpsRadar', 'radar', {
+        labels: ['Distancia', 'Intensidad', 'Vel. Máx', 'Aceleraciones', 'Desacel.'],
+        datasets: [
+          {
+            label: last.r,
+            data: [nRange(last.d, 0, maxD), nRange(last.i, 0, maxI), nRange(last.v, 0, maxV), nRange(last.acc, 0, maxAcc), nRange(last.dec, 0, maxDec)],
+            borderColor: GREEN, backgroundColor: 'rgba(0,232,150,0.15)', borderWidth: 2.5, pointBackgroundColor: GREEN, pointRadius: 4
+          },
+          {
+            label: 'Referencia máx.', data: [100, 100, 100, 100, 100],
+            borderColor: 'rgba(240,192,64,0.3)', backgroundColor: 'rgba(240,192,64,0.04)', borderWidth: 1, borderDash: [4, 3], pointRadius: 0
+          }
+        ]
+      }, {
+        responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
+        plugins: { legend: { display: true, labels: { color: 'rgba(232,245,240,0.5)', font: { size: 9 }, boxWidth: 8, padding: 12 } }, tooltip: TT },
+        scales: {
+          r: {
+            suggestedMin: 0, suggestedMax: 100, ticks: { display: false },
+            grid: { color: 'rgba(0,232,150,0.1)' }, angleLines: { color: 'rgba(0,232,150,0.12)' },
+            pointLabels: { font: { size: 9, family: "'Barlow Condensed',sans-serif", weight: '700' }, color: 'rgba(232,245,240,0.7)' }
+          }
+        }
+      });
     }
-  });
 
-  mkChart('antroMuscleChart','line',{
-    labels,
-    datasets:[{
-      data:a.map(x=>x.m),
-      borderColor:GREEN, backgroundColor:'rgba(0,232,150,0.08)',
-      tension:0.4, borderWidth:2.5, fill:true, pointBackgroundColor:GREEN, pointRadius:3
-    }]
-  },{
-    ...baseOpts(),
-    scales:{
-      x:{ticks:{font:tickFont,maxRotation:45},grid:{color:'rgba(0,232,150,0.05)'}},
-      y:{ticks:{font:tickFont,callback:v=>v+'%'},grid:{color:'rgba(0,232,150,0.06)'},min:48,max:58}
-    }
-  });
+    // ── ANTRO ────────────────────────────────────────────────
+    function renderAntro() {
+      const a = STATE.antro;
+      const last = a[a.length - 1], prev = a[a.length - 2];
+      const labels = a.map(x => x.f.substring(5, 10));
 
-  mkChart('antroFatChart','line',{
-    labels,
-    datasets:[{
-      data:a.map(x=>x.a),
-      borderColor:RED, backgroundColor:'rgba(255,77,109,0.07)',
-      tension:0.4, borderWidth:2.5, fill:true, pointBackgroundColor:RED, pointRadius:3
-    }]
-  },{
-    ...baseOpts(),
-    scales:{
-      x:{ticks:{font:tickFont,maxRotation:45},grid:{color:'rgba(0,232,150,0.05)'}},
-      y:{ticks:{font:tickFont,callback:v=>v+'%'},grid:{color:'rgba(0,232,150,0.06)'},min:14,max:22}
-    }
-  });
+      document.getElementById('kpi-antro').innerHTML =
+        kpi('Peso', last.p, 'kg', trend(last.p, prev.p, 'kg'), 'var(--gold)') +
+        kpi('Músculo', last.m.toFixed(1), '%', trend(last.m, prev.m, '%')) +
+        kpi('Grasa', last.a.toFixed(1), '%', trend(last.a, prev.a, '%', true), 'var(--red)') +
+        kpi('ISAK 6Σ', last.s, 'mm', trend(last.s, prev.s, 'mm', true), 'var(--blue)');
 
-  mkChart('antroIsakChart','bar',{
-    labels,
-    datasets:[{
-      data:a.map(x=>x.s),
-      backgroundColor: a.map(x=>x.s<=34?'rgba(0,232,150,0.7)':'rgba(255,77,109,0.55)'),
-      borderColor: a.map(x=>x.s<=34?GREEN:RED),
-      borderWidth:1, borderRadius:4
-    }]
-  },{
-    ...baseOpts(),
-    scales:{
-      x:{ticks:{font:tickFont,maxRotation:45},grid:{color:'rgba(0,232,150,0.05)'}},
-      y:{ticks:{font:tickFont,callback:v=>v+'mm'},grid:{color:'rgba(0,232,150,0.06)'}}
-    },
-    plugins:{
-      ...baseOpts().plugins,
-      annotation:{annotations:{
-        optLine:{type:'line',yMin:33,yMax:33,borderColor:GREEN,borderWidth:1.5,borderDash:[5,4],
-          label:{content:'Óptimo ≤33mm',enabled:true,color:GREEN,font:{size:9},backgroundColor:'rgba(0,0,0,0.5)'}}
-      }}
-    }
-  });
+      const xs2 = { ticks: { font: TF, maxRotation: 45 }, grid: { color: 'rgba(0,232,150,0.05)' } };
 
-  // Somatotype radar full
-  mkChart('antroSomatoFull','radar',{
-    labels:['Endomorfia','Mesomorfia','Ectomorfia'],
-    datasets:[{
-      data:[last.endo, last.meso, last.ecto],
-      borderColor:GREEN, backgroundColor:'rgba(0,232,150,0.12)',
-      borderWidth:2.5, pointBackgroundColor:GREEN, pointRadius:5
-    }]
-  },{
-    responsive:true, maintainAspectRatio:false, animation:{duration:600},
-    plugins:{legend:{display:false},tooltip:{...baseOpts().plugins.tooltip}},
-    scales:{r:{
-      suggestedMin:0, suggestedMax:9,
-      ticks:{display:false,stepSize:2},
-      grid:{color:'rgba(0,232,150,0.1)'},
-      angleLines:{color:'rgba(0,232,150,0.15)'},
-      pointLabels:{font:{size:10,family:"'Barlow Condensed',sans-serif",weight:'700'},color:'rgba(232,245,240,0.7)'}
-    }}
-  });
+      mkC('aWeight', 'line', { labels, datasets: [{ data: a.map(x => x.p), borderColor: GOLD, backgroundColor: 'rgba(240,192,64,0.06)', tension: 0.4, borderWidth: 2.5, fill: true, pointBackgroundColor: GOLD, pointRadius: 3 }] }, {
+        ...bOpts(), scales: { x: xs2, y: { ticks: { font: TF, callback: v => v + ' kg' }, grid: { color: 'rgba(0,232,150,0.06)' }, min: 76, max: 90 } }
+      });
 
-  // Somatotype evolution line
-  mkChart('antroSomatoLine','line',{
-    labels,
-    datasets:[
-      {label:'Endo',data:a.map(x=>x.endo),borderColor:'rgba(255,77,109,0.8)',tension:0.4,borderWidth:2,pointRadius:3,pointBackgroundColor:'rgba(255,77,109,0.8)'},
-      {label:'Meso',data:a.map(x=>x.meso),borderColor:GREEN,tension:0.4,borderWidth:2,pointRadius:3,pointBackgroundColor:GREEN},
-      {label:'Ecto',data:a.map(x=>x.ecto),borderColor:BLUE,tension:0.4,borderWidth:2,pointRadius:3,pointBackgroundColor:BLUE}
-    ]
-  },{
-    ...baseOpts(),
-    plugins:{
-      ...baseOpts().plugins,
-      legend:{display:true,labels:{color:'rgba(232,245,240,0.6)',font:{size:9},boxWidth:8,padding:12}}
-    }
-  });
+      mkC('aMuscle', 'line', { labels, datasets: [{ data: a.map(x => x.m), borderColor: GREEN, backgroundColor: 'rgba(0,232,150,0.08)', tension: 0.4, borderWidth: 2.5, fill: true, pointBackgroundColor: GREEN, pointRadius: 3 }] }, {
+        ...bOpts(), scales: { x: xs2, y: { ticks: { font: TF, callback: v => v + '%' }, grid: { color: 'rgba(0,232,150,0.06)' }, min: 48, max: 58 } }
+      });
 
-  // Antro history table
-  const tbody = document.getElementById('antro-detail-tbody');
-  tbody.innerHTML = a.map((x,i) => `<tr>
+      mkC('aFat', 'line', { labels, datasets: [{ data: a.map(x => x.a), borderColor: RED, backgroundColor: 'rgba(255,77,109,0.07)', tension: 0.4, borderWidth: 2.5, fill: true, pointBackgroundColor: RED, pointRadius: 3 }] }, {
+        ...bOpts(), scales: { x: xs2, y: { ticks: { font: TF, callback: v => v + '%' }, grid: { color: 'rgba(0,232,150,0.06)' }, min: 14, max: 22 } }
+      });
+
+      mkC('aIsak', 'bar', {
+        labels, datasets: [{
+          data: a.map(x => x.s),
+          backgroundColor: a.map(x => x.s <= 33 ? 'rgba(0,232,150,0.70)' : 'rgba(255,77,109,0.55)'),
+          borderColor: a.map(x => x.s <= 33 ? GREEN : RED), borderWidth: 1, borderRadius: 4
+        }]
+      }, {
+        ...bOpts(),
+        scales: { x: xs2, y: { ticks: { font: TF, callback: v => v + ' mm' }, grid: { color: 'rgba(0,232,150,0.06)' } } },
+        plugins: {
+          ...bOpts().plugins,
+          annotation: {
+            annotations: {
+              opt: {
+                type: 'line', yMin: 33, yMax: 33, borderColor: GREEN, borderWidth: 1.5, borderDash: [5, 4],
+                label: { content: 'Óptimo ≤33 mm', display: true, color: GREEN, font: { size: 9, family: "'Space Mono',monospace" }, backgroundColor: 'rgba(0,0,0,0.55)', padding: 4 }
+              }
+            }
+          }
+        }
+      });
+
+      const rOpts = {
+        responsive: true, maintainAspectRatio: false, animation: { duration: 600 },
+        plugins: { legend: { display: false }, tooltip: TT },
+        scales: {
+          r: {
+            suggestedMin: 0, suggestedMax: 9, ticks: { display: false }, grid: { color: 'rgba(0,232,150,0.1)' },
+            angleLines: { color: 'rgba(0,232,150,0.15)' },
+            pointLabels: { font: { size: 10, family: "'Barlow Condensed',sans-serif", weight: '700' }, color: 'rgba(232,245,240,0.7)' }
+          }
+        }
+      };
+
+      mkC('aSomato', 'radar', {
+        labels: ['Endomorfia', 'Mesomorfia', 'Ectomorfia'],
+        datasets: [{ data: [last.endo, last.meso, last.ecto], borderColor: GREEN, backgroundColor: 'rgba(0,232,150,0.12)', borderWidth: 2.5, pointBackgroundColor: GREEN, pointRadius: 5 }]
+      }, rOpts);
+
+      mkC('aSomatoLine', 'line', {
+        labels, datasets: [
+          { label: 'Endo', data: a.map(x => x.endo), borderColor: 'rgba(255,77,109,0.8)', tension: 0.4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: 'rgba(255,77,109,0.8)' },
+          { label: 'Meso', data: a.map(x => x.meso), borderColor: GREEN, tension: 0.4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: GREEN },
+          { label: 'Ecto', data: a.map(x => x.ecto), borderColor: BLUE, tension: 0.4, borderWidth: 2, pointRadius: 3, pointBackgroundColor: BLUE }
+        ]
+      }, { ...bOpts(), plugins: { ...bOpts().plugins, legend: { display: true, labels: { color: 'rgba(232,245,240,0.6)', font: { size: 9 }, boxWidth: 8, padding: 12 } } } });
+
+      document.getElementById('antro-tbody').innerHTML = a.map(x => `<tr>
     <td class="dim">${x.f}</td>
-    <td class="highlight">${x.p}</td>
-    <td>${x.m.toFixed(2)}%</td>
-    <td class="${x.a<17?'highlight':x.a>19?'':'dim'}" style="${x.a>19?'color:var(--red);':''}">${x.a.toFixed(2)}%</td>
-    <td class="${x.s<=33?'highlight':''}">${x.s}</td>
-    <td>${x.endo}</td>
-    <td style="color:var(--green);font-weight:700;">${x.meso}</td>
-    <td>${x.ecto}</td>
+    <td style="color:var(--gold);font-weight:700;font-family:'Space Mono',monospace">${x.p}</td>
+    <td style="color:var(--green);font-family:'Space Mono',monospace">${x.m.toFixed(2)}</td>
+    <td style="color:${x.a > 18 ? 'var(--red)' : 'var(--text)'};font-family:'Space Mono',monospace">${x.a.toFixed(2)}</td>
+    <td style="color:${x.s <= 33 ? 'var(--green)' : 'var(--text)'};font-family:'Space Mono',monospace">${x.s}</td>
+    <td class="dim">${x.endo}</td>
+    <td style="color:var(--green);font-weight:600">${x.meso}</td>
+    <td class="dim">${x.ecto}</td>
     <td>${season(x.f)}</td>
   </tr>`).join('');
-}
-
-// ============================================================
-//  COMPARATIVA
-// ============================================================
-function renderComparativa() {
-  const g = STATE.gps;
-  const a = STATE.antro;
-  const gFirst = g[0], gLast = g[g.length-1];
-  const aFirst = a[0], aLast = a[a.length-1];
-
-  function statsBlock(obj, fields) {
-    return fields.map(f => `
-      <div class="compare-row">
-        <span class="compare-label">${f.label}</span>
-        <span class="compare-val" style="color:${f.color||'var(--text)'}">${f.fmt ? f.fmt(obj[f.key]) : obj[f.key]}</span>
-      </div>`).join('');
-  }
-
-  const gFields = [
-    {key:'r',label:'Rival',color:'var(--green)'},
-    {key:'d',label:'Distancia (m)',fmt:v=>v.toLocaleString(),color:'var(--gold)'},
-    {key:'i',label:'Intensidad m/min',fmt:v=>v.toFixed(1)},
-    {key:'v',label:'Vel. Máx m/s',fmt:v=>v.toFixed(2),color:'var(--blue)'},
-    {key:'acc',label:'Aceleraciones'},
-    {key:'dec',label:'Desaceleraciones'},
-    {key:'expl',label:'Explosivos'}
-  ];
-
-  document.getElementById('compare-gps-first').innerHTML = statsBlock(gFirst, gFields);
-  document.getElementById('compare-gps-last').innerHTML = statsBlock(gLast, gFields);
-
-  // GPS delta
-  const gpsDeltaItems = [
-    {k:'d',label:'Distancia',fmt:v=>v.toLocaleString()+'m',unit:'m'},
-    {k:'i',label:'Intensidad',fmt:v=>v.toFixed(1)+' m/min',unit:''},
-    {k:'v',label:'Vel. Máx',fmt:v=>v.toFixed(2)+' m/s',unit:''},
-    {k:'acc',label:'Aceleraciones',unit:''},
-    {k:'dec',label:'Desaceleraciones',unit:'',inverse:true},
-  ];
-  document.getElementById('compare-gps-delta').innerHTML = gpsDeltaItems.map(item => {
-    const diff = gLast[item.k] - gFirst[item.k];
-    const isGood = item.inverse ? diff < 0 : diff > 0;
-    const cls = diff === 0 ? '' : (isGood ? 'diff-pos' : 'diff-neg');
-    const arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
-    return `<div class="compare-row">
-      <span class="compare-label">${item.label}</span>
-      <div style="display:flex;align-items:center;gap:0.5rem;">
-        <span class="compare-val">${item.fmt(gFirst[item.k])}</span>
-        <span style="color:var(--text-muted);font-size:0.7rem;">→</span>
-        <span class="compare-val" style="color:${isGood?'var(--green)':'var(--red)'}">${item.fmt(gLast[item.k])}</span>
-        <span class="compare-diff ${cls}">${arrow} ${Math.abs(diff).toFixed(diff%1===0?0:2)}${item.unit}</span>
-      </div>
-    </div>`;
-  }).join('');
-
-  const aFields = [
-    {key:'f',label:'Fecha'},
-    {key:'p',label:'Peso',fmt:v=>v+' kg',color:'var(--gold)'},
-    {key:'m',label:'Músculo %',fmt:v=>v.toFixed(2)+'%',color:'var(--green)'},
-    {key:'a',label:'Grasa %',fmt:v=>v.toFixed(2)+'%'},
-    {key:'s',label:'ISAK 6 Σmm',color:'var(--blue)'},
-    {key:'meso',label:'Mesomorfia',fmt:v=>v,color:'var(--green)'}
-  ];
-  document.getElementById('compare-antro-first').innerHTML = statsBlock(aFirst, aFields);
-  document.getElementById('compare-antro-last').innerHTML = statsBlock(aLast, aFields);
-
-  const aDeltas = [
-    {k:'p',label:'Peso',fmt:v=>v+'kg',unit:'kg',inverse:false},
-    {k:'m',label:'Músculo',fmt:v=>v.toFixed(2)+'%',unit:'%',inverse:false},
-    {k:'a',label:'Grasa',fmt:v=>v.toFixed(2)+'%',unit:'%',inverse:true},
-    {k:'s',label:'ISAK Σ',fmt:v=>v+'mm',unit:'mm',inverse:true},
-    {k:'meso',label:'Mesomorfia',fmt:v=>v,unit:'',inverse:false},
-  ];
-  document.getElementById('compare-antro-delta').innerHTML = aDeltas.map(item => {
-    const diff = aLast[item.k] - aFirst[item.k];
-    const isGood = item.inverse ? diff < 0 : diff > 0;
-    const cls = diff === 0 ? '' : (isGood ? 'diff-pos' : 'diff-neg');
-    const arrow = diff > 0 ? '↑' : diff < 0 ? '↓' : '→';
-    return `<div class="compare-row">
-      <span class="compare-label">${item.label}</span>
-      <div style="display:flex;align-items:center;gap:0.5rem;">
-        <span class="compare-val">${item.fmt(aFirst[item.k])}</span>
-        <span style="color:var(--text-muted);font-size:0.7rem;">→</span>
-        <span class="compare-val" style="color:${isGood?'var(--green)':'var(--red)'}">${item.fmt(aLast[item.k])}</span>
-        <span class="compare-diff ${cls}">${arrow} ${Math.abs(diff).toFixed(Math.abs(diff)%1===0?0:2)}${item.unit}</span>
-      </div>
-    </div>`;
-  }).join('');
-
-  // Radar comparativo GPS
-  const maxes = {
-    d: Math.max(...g.map(x=>x.d)),
-    i: Math.max(...g.map(x=>x.i)),
-    v: Math.max(...g.map(x=>x.v)),
-    acc: Math.max(...g.map(x=>x.acc)),
-    dec: Math.max(...g.map(x=>x.dec))
-  };
-  mkChart('compareRadar','radar',{
-    labels:['Distancia','Intensidad','Vel.Máx','Aceleraciones','Desacel.'],
-    datasets:[
-      {
-        label: gFirst.r,
-        data:[normRange(gFirst.d,0,maxes.d),normRange(gFirst.i,0,maxes.i),normRange(gFirst.v,0,maxes.v),normRange(gFirst.acc,0,maxes.acc),normRange(gFirst.dec,0,maxes.dec)],
-        borderColor:GOLD, backgroundColor:'rgba(240,192,64,0.1)', borderWidth:2, pointBackgroundColor:GOLD, pointRadius:3
-      },
-      {
-        label: gLast.r,
-        data:[normRange(gLast.d,0,maxes.d),normRange(gLast.i,0,maxes.i),normRange(gLast.v,0,maxes.v),normRange(gLast.acc,0,maxes.acc),normRange(gLast.dec,0,maxes.dec)],
-        borderColor:GREEN, backgroundColor:'rgba(0,232,150,0.1)', borderWidth:2, pointBackgroundColor:GREEN, pointRadius:3
-      }
-    ]
-  },{
-    responsive:true, maintainAspectRatio:false, animation:{duration:700},
-    plugins:{
-      legend:{display:true,labels:{color:'rgba(232,245,240,0.6)',font:{size:9},boxWidth:8,padding:12}},
-      tooltip:{...baseOpts().plugins.tooltip}
-    },
-    scales:{r:{
-      suggestedMin:0, suggestedMax:100,
-      ticks:{display:false,stepSize:25},
-      grid:{color:'rgba(0,232,150,0.1)'},
-      angleLines:{color:'rgba(0,232,150,0.12)'},
-      pointLabels:{font:{size:9,family:"'Barlow Condensed',sans-serif",weight:'700'},color:'rgba(232,245,240,0.7)'}
-    }}
-  });
-}
-
-// ============================================================
-//  AI
-// ============================================================
-function renderAI() {
-  if (!document.querySelector('#chat-messages .chat-msg')) {
-    addChatMsg('ai', 'Hola Ignacio, soy tu Coach de IA. Puedo analizar tu evolución de 5 años, comparar partidos, evaluar tu composición corporal y darte recomendaciones específicas. ¿Qué querés saber?');
-  }
-
-  const quickQs = [
-    '¿Cuál fue mi mejor partido?',
-    '¿Cómo evolucionó mi músculo?',
-    '¿En qué métricas debo mejorar?',
-    '¿Qué dice el somatotipo actual?',
-    '¿Cuál es mi tendencia de velocidad?',
-    '¿Cómo comparar mi ISAK histórico?'
-  ];
-
-  const qContainer = document.getElementById('quick-questions');
-  qContainer.innerHTML = quickQs.map(q => `
-    <button onclick="quickQuestion('${q}')" style="padding:0.35rem 0.75rem;background:rgba(0,232,150,0.08);border:1px solid rgba(0,232,150,0.18);border-radius:6px;color:rgba(232,245,240,0.75);font-size:0.7rem;cursor:pointer;font-family:'Barlow',sans-serif;transition:all 0.15s;" onmouseover="this.style.background='rgba(0,232,150,0.15)'" onmouseout="this.style.background='rgba(0,232,150,0.08)'">${q}</button>
-  `).join('');
-}
-
-function quickQuestion(q) {
-  document.getElementById('chat-input').value = q;
-  sendChat();
-}
-
-function addChatMsg(role, text) {
-  const container = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.className = `chat-msg chat-${role}`;
-  div.innerHTML = text;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-  return div;
-}
-
-async function runAIAnalysis() {
-  const btn = document.getElementById('analyze-btn');
-  const content = document.getElementById('ai-insights-content');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin"></span> Analizando...';
-  content.innerHTML = '<div style="display:flex;gap:6px;align-items:center;color:var(--text-muted);font-size:0.8rem;"><span class="spin"></span> Procesando historial completo...</div>';
-
-  const lastA = STATE.antro[STATE.antro.length-1];
-  const lastG = STATE.gps[STATE.gps.length-1];
-  const firstA = STATE.antro[0];
-  const firstG = STATE.gps[0];
-  const avgInt = (STATE.gps.reduce((a,g)=>a+g.i,0)/STATE.gps.length).toFixed(1);
-  const maxV = Math.max(...STATE.gps.map(g=>g.v));
-
-  const prompt = `Sos un coach de alto rendimiento deportivo especializado en rugby. Analizá el siguiente historial del jugador Ignacio Guichón (forward, Nº 8, rugby semi-profesional, Argentina) y generá un informe de rendimiento en HTML.
-
-DATOS GPS (${STATE.gps.length} partidos, 2024-2026):
-${JSON.stringify(STATE.gps)}
-
-DATOS ANTROPOMÉTRICOS ISAK (${STATE.antro.length} mediciones, 2021-2026):
-${JSON.stringify(STATE.antro)}
-
-RESUMEN:
-- Primer partido: ${firstG.r} → Dist: ${firstG.d}m, Int: ${firstG.i}m/min, Vel: ${firstG.v}m/s
-- Último partido: ${lastG.r} → Dist: ${lastG.d}m, Int: ${lastG.i}m/min, Vel: ${lastG.v}m/s
-- Primera antro: Peso ${firstA.p}kg, Músculo ${firstA.m}%, Grasa ${firstA.a}%, Meso ${firstA.meso}
-- Última antro: Peso ${lastA.p}kg, Músculo ${lastA.m}%, Grasa ${lastA.a}%, Meso ${lastA.meso}
-- Intensidad promedio GPS: ${avgInt} m/min
-- Velocidad máxima registrada: ${maxV} m/s
-
-Generá el análisis en HTML con:
-1. Un párrafo de evaluación general (fortalezas y áreas de mejora)
-2. Sección "Tendencias Físicas" con bullet points sobre composición corporal
-3. Sección "Rendimiento GPS" con bullet points sobre los partidos
-4. Sección "Recomendaciones" con 3-4 sugerencias concretas
-5. Una proyección corta para la próxima temporada
-
-Usá <strong> para métricas clave, <em> para términos positivos, <ul><li> para listas. Sé específico con los números. Máximo 350 palabras. Respondé solo con el HTML, sin explicaciones extra.`;
-
-  try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
-    const data = await resp.json();
-    const text = data.content.map(b => b.text || '').join('');
-    content.innerHTML = text || '<p>No se pudo generar el análisis.</p>';
-  } catch(e) {
-    content.innerHTML = `<p style="color:var(--red);">Error de conexión. Verificá que la API esté configurada.</p>`;
-  }
-
-  btn.disabled = false;
-  btn.innerHTML = '✦ Re-analizar';
-}
-
-const CHAT_SYSTEM = `Sos un coach de alto rendimiento deportivo especializado en rugby argentino. El jugador es Ignacio Guichón, forward Nº8, nivel semi-profesional.
-
-Sus datos actuales:
-GPS última fecha: ${JSON.stringify(STATE.gps[STATE.gps.length-1] || {})}
-Antro última medición: ${JSON.stringify(STATE.antro[STATE.antro.length-1] || {})}
-GPS histórico (${STATE.gps.length} partidos): intensidad promedio ${(STATE.gps.reduce((a,g)=>a+g.i,0)/STATE.gps.length).toFixed(1)} m/min
-Vel. máxima registrada: ${Math.max(...STATE.gps.map(g=>g.v)).toFixed(2)} m/s
-
-Respondé en español, de forma breve y directa (máximo 3 párrafos cortos). Usá datos concretos cuando sea relevante. No uses markdown (no asteriscos ni almohadillas), solo texto plano.`;
-
-async function sendChat() {
-  const input = document.getElementById('chat-input');
-  const q = input.value.trim();
-  if (!q) return;
-  input.value = '';
-
-  addChatMsg('user', q);
-  STATE.chatHistory.push({ role: 'user', content: q });
-
-  const loading = addChatMsg('ai', '');
-  loading.classList.add('loading');
-  loading.innerHTML = '<span class="dot-flash"></span><span class="dot-flash"></span><span class="dot-flash"></span>';
-
-  try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        system: CHAT_SYSTEM,
-        messages: STATE.chatHistory.slice(-10)
-      })
-    });
-    const data = await resp.json();
-    const text = data.content.map(b => b.text || '').join('');
-    loading.classList.remove('loading');
-    loading.innerHTML = text;
-    STATE.chatHistory.push({ role: 'assistant', content: text });
-  } catch(e) {
-    loading.classList.remove('loading');
-    loading.innerHTML = '<span style="color:var(--red)">Error de conexión.</span>';
-  }
-  document.getElementById('chat-messages').scrollTop = 999999;
-}
-
-// ============================================================
-//  ADMIN
-// ============================================================
-function renderAdmin() {
-  const statusEl = document.getElementById('data-status');
-  const lastG = STATE.gps[STATE.gps.length-1];
-  const lastA = STATE.antro[STATE.antro.length-1];
-  statusEl.innerHTML = `
-    <div class="compare-row"><span class="compare-label">Partidos GPS cargados</span><span class="compare-val highlight">${STATE.gps.length}</span></div>
-    <div class="compare-row"><span class="compare-label">Último partido</span><span class="compare-val">${lastG.r}</span></div>
-    <div class="compare-row"><span class="compare-label">Mediciones ISAK cargadas</span><span class="compare-val highlight">${STATE.antro.length}</span></div>
-    <div class="compare-row"><span class="compare-label">Última medición</span><span class="compare-val">${lastA.f}</span></div>
-    <div class="compare-row"><span class="compare-label">Temporada activa</span><span class="badge badge-green">2026</span></div>
-  `;
-}
-
-async function parseData(type) {
-  const input = document.getElementById('raw-data-input');
-  const result = document.getElementById('parse-result');
-  if (!input.value.trim()) { result.style.display='block'; result.textContent='Pegá datos primero.'; return; }
-  
-  result.style.display='block';
-  result.innerHTML='<span class="spin"></span> Procesando con IA...';
-
-  const systemGPS = `Extraé los datos de GPS de rugby del texto y devolvé ÚNICAMENTE un objeto JSON válido con este formato exacto: {"r":"rival","d":6000,"i":75.0,"v":9.0,"acc":30,"dec":35,"expl":0}. Sin texto adicional, sin markdown, sin explicaciones.`;
-  const systemAntro = `Extraé los datos antropométricos ISAK del texto y devolvé ÚNICAMENTE un objeto JSON válido con este formato exacto: {"f":"YYYY-MM-DD","p":85.0,"m":54.0,"a":17.0,"s":35.0,"endo":1.5,"meso":5.5,"ecto":2.0}. Sin texto adicional, sin markdown, sin explicaciones.`;
-
-  try {
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
-        system: type === 'gps' ? systemGPS : systemAntro,
-        messages: [{ role: 'user', content: input.value }]
-      })
-    });
-    const data = await resp.json();
-    const text = data.content.map(b=>b.text||'').join('').replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(text);
-    
-    if (type === 'gps') {
-      STATE.gps.push(parsed);
-      result.innerHTML = `<span style="color:var(--green)">✓ GPS cargado: ${parsed.r} — ${parsed.d}m @ ${parsed.i}m/min</span>`;
-    } else {
-      STATE.antro.push(parsed);
-      STATE.antro.sort((a,b)=>new Date(a.f)-new Date(b.f));
-      result.innerHTML = `<span style="color:var(--green)">✓ Antro cargada: ${parsed.f} — ${parsed.p}kg, ${parsed.m}% músculo</span>`;
     }
-    input.value = '';
-  } catch(e) {
-    result.innerHTML = `<span style="color:var(--red)">Error al procesar. Verificá el formato o la conexión.</span>`;
-  }
-}
 
-function exportJSON() {
-  const data = JSON.stringify({ antro: STATE.antro, gps: STATE.gps }, null, 2);
-  const blob = new Blob([data], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'guichon-hub-data.json';
-  a.click();
-}
+    // ── ADMIN ────────────────────────────────────────────────
+    function renderAdmin() {
+      const g = STATE.gps, a = STATE.antro;
+      document.getElementById('data-status').innerHTML = `
+    <div class="sr"><span class="sl">Partidos GPS cargados</span><span style="font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;color:var(--green)">${g.length}</span></div>
+    <div class="sr"><span class="sl">Último partido</span><span style="font-size:.75rem;font-weight:600">${g[g.length - 1].r}</span></div>
+    <div class="sr"><span class="sl">Mediciones ISAK cargadas</span><span style="font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;color:var(--green)">${a.length}</span></div>
+    <div class="sr"><span class="sl">Última medición antro</span><span style="font-size:.75rem">${a[a.length - 1].f}</span></div>
+    <div class="sr"><span class="sl">Temporada activa</span><span class="badge bg">2026</span></div>
+  `;
+    }
 
-function exportCSV() {
-  const rows = [['Rival','Distancia','Intensidad','VelMax','Acc','Dec','Explosivos']];
-  STATE.gps.forEach(g => rows.push([g.r,g.d,g.i,g.v,g.acc,g.dec,g.expl]));
-  rows.push([]);
-  rows.push(['Fecha','Peso','Musculo%','Grasa%','ISAK6','Endo','Meso','Ecto']);
-  STATE.antro.forEach(a => rows.push([a.f,a.p,a.m,a.a,a.s,a.endo,a.meso,a.ecto]));
-  const csv = rows.map(r=>r.join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const el = document.createElement('a');
-  el.href = URL.createObjectURL(blob);
-  el.download = 'guichon-hub-data.csv';
-  el.click();
-}
+    // ── NEW GPS ENTRY ─────────────────────────────────────────
+    function saveNewGPS() {
+      const fb = document.getElementById('n-fb');
+      const rival = document.getElementById('n-rival').value.trim();
+      const dist = parseFloat(document.getElementById('n-dist').value);
+      const int_ = parseFloat(document.getElementById('n-int').value);
+      const vel = parseFloat(document.getElementById('n-vel').value);
+      const minRaw = document.getElementById('n-min').value;
+      const min = minRaw !== '' ? parseInt(minRaw) : null;
+      const acc = document.getElementById('n-acc').value !== '' ? parseInt(document.getElementById('n-acc').value) : 0;
+      const dec_ = document.getElementById('n-dec').value !== '' ? parseInt(document.getElementById('n-dec').value) : 0;
+      const expl = document.getElementById('n-expl').value !== '' ? parseInt(document.getElementById('n-expl').value) : 0;
 
-// ============================================================
-//  INIT
-// ============================================================
-window.addEventListener('load', () => {
-  renderPage('overview');
-});
-</script>
+      const errs = [];
+      if (!rival) errs.push('El campo Rival es obligatorio');
+      if (isNaN(dist) || dist <= 0) errs.push('Distancia inválida — ingresá un valor en metros (m)');
+      if (isNaN(int_) || int_ <= 0) errs.push('Intensidad inválida — ingresá un valor en m/min');
+      if (isNaN(vel) || vel <= 0) errs.push('Velocidad inválida — ingresá un valor en m/s');
+      if (!isNaN(vel) && vel > 15) errs.push('Velocidad > 15 m/s parece km/h — dividí por 3.6 para convertir');
+
+      fb.style.display = 'block';
+      if (errs.length) {
+        fb.className = 'fb fb-err';
+        fb.innerHTML = `<strong>✗ No se pudo guardar</strong><br>` + errs.map(e => `· ${e}`).join('<br>');
+        return;
+      }
+
+      STATE.gps.push({ r: rival, d: Math.round(dist), i: parseFloat(int_.toFixed(2)), v: parseFloat(vel.toFixed(2)), min, acc, dec: dec_, expl });
+      fb.className = 'fb fb-ok';
+      fb.innerHTML = `<strong>✓ Partido guardado</strong><br>${rival} — ${Math.round(dist).toLocaleString('es-AR')} m · ${int_.toFixed(2)} m/min · ${vel.toFixed(2)} m/s${min != null ? ` · ${min} min` : ''}`;
+      ['n-rival', 'n-dist', 'n-int', 'n-vel', 'n-min', 'n-acc', 'n-dec', 'n-expl'].forEach(id => { document.getElementById(id).value = ''; });
+      renderAdmin();
+    }
+
+    // ── EDIT MODAL ────────────────────────────────────────────
+    function openEdit(idx) {
+      _editIdx = idx;
+      const g = STATE.gps[idx];
+      document.getElementById('modal-rival-label').textContent = g.r;
+      document.getElementById('e-rival').value = g.r;
+      document.getElementById('e-dist').value = g.d;
+      document.getElementById('e-int').value = g.i;
+      document.getElementById('e-vel').value = g.v;
+      document.getElementById('e-min').value = g.min != null ? g.min : '';
+      document.getElementById('e-acc').value = g.acc;
+      document.getElementById('e-dec').value = g.dec;
+      document.getElementById('e-expl').value = g.expl;
+      const fb = document.getElementById('e-fb');
+      fb.style.display = 'none'; fb.className = 'fb';
+      document.getElementById('editModal').classList.add('open');
+    }
+    function closeModal() {
+      document.getElementById('editModal').classList.remove('open');
+      _editIdx = null;
+    }
+    document.getElementById('editModal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+
+    function saveEdit() {
+      if (_editIdx === null) return;
+      const fb = document.getElementById('e-fb');
+      const rival = document.getElementById('e-rival').value.trim();
+      const dist = parseFloat(document.getElementById('e-dist').value);
+      const int_ = parseFloat(document.getElementById('e-int').value);
+      const vel = parseFloat(document.getElementById('e-vel').value);
+      const minRaw = document.getElementById('e-min').value;
+      const min = minRaw !== '' ? parseInt(minRaw) : null;
+      const acc = parseInt(document.getElementById('e-acc').value) || 0;
+      const dec_ = parseInt(document.getElementById('e-dec').value) || 0;
+      const expl = parseInt(document.getElementById('e-expl').value) || 0;
+
+      const errs = [];
+      if (!rival) errs.push('Rival es obligatorio');
+      if (isNaN(dist) || dist <= 0) errs.push('Distancia inválida (m)');
+      if (isNaN(int_) || int_ <= 0) errs.push('Intensidad inválida (m/min)');
+      if (isNaN(vel) || vel <= 0) errs.push('Velocidad inválida (m/s)');
+      if (!isNaN(vel) && vel > 15) errs.push('Velocidad > 15 m/s — ¿km/h? Dividí por 3.6');
+
+      if (errs.length) {
+        fb.className = 'fb fb-err'; fb.style.display = 'block';
+        fb.innerHTML = `<strong>✗ Error</strong><br>` + errs.map(e => `· ${e}`).join('<br>');
+        return;
+      }
+
+      STATE.gps[_editIdx] = { r: rival, d: Math.round(dist), i: parseFloat(int_.toFixed(2)), v: parseFloat(vel.toFixed(2)), min, acc, dec: dec_, expl };
+      document.getElementById('modal-rival-label').textContent = rival;
+      fb.className = 'fb fb-ok'; fb.style.display = 'block';
+      fb.innerHTML = `<strong>✓ Guardado</strong> — ${rival} actualizado correctamente.`;
+      setTimeout(closeModal, 900);
+    }
+
+    // ── EXPORT ────────────────────────────────────────────────
+    function exportJSON() {
+      const b = new Blob([JSON.stringify({ antro: STATE.antro, gps: STATE.gps }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'guichon-hub-data.json'; a.click();
+    }
+    function exportCSV() {
+      const rows = [['=== GPS ==='], ['Rival', 'Distancia (m)', 'Intensidad (m/min)', 'Vel.Max (m/s)', 'Min.Jugados', 'Aceleraciones', 'Desaceleraciones', 'Explosivos']];
+      STATE.gps.forEach(g => rows.push([g.r, g.d, g.i, g.v, g.min ?? '', g.acc, g.dec, g.expl]));
+      rows.push([], ['=== ANTRO ==='], ['Fecha', 'Peso (kg)', 'Musculo (%)', 'Grasa (%)', 'ISAK6 (mm)', 'Endo', 'Meso', 'Ecto']);
+      STATE.antro.forEach(a => rows.push([a.f, a.p, a.m, a.a, a.s, a.endo, a.meso, a.ecto]));
+      const b = new Blob([rows.map(r => r.join(',')).join('\n')], { type: 'text/csv' });
+      const el = document.createElement('a'); el.href = URL.createObjectURL(b); el.download = 'guichon-hub-data.csv'; el.click();
+    }
+
+    // ── INIT ─────────────────────────────────────────────────
+    window.addEventListener('load', () => renderPage('overview'));
+    function renderPage(n) { ({ overview: renderOverview, gps: renderGPS, antro: renderAntro, admin: renderAdmin }[n] || function () { })(); }
+  </script>
 </body>
+
 </html>
