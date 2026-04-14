@@ -451,21 +451,21 @@ const STATE = {
     {f:'2026-02-02',p:85.1, m:54.92,a:18.18,s:39.0,endo:1.16,meso:5.08,ecto:2.15},
     {f:'2026-03-19',p:86.4, m:55.78,a:16.91,s:33.0,endo:1.28,meso:5.43,ecto:1.99}
   ],
-  gps:[
-    {r:"BACRC '25",      d:6603, i:76.60, v:9.03, min:70, acc:32, dec:39, expl:75 },
-    {r:"LPRC '25",  d:6813, i:72.66, v:8.87, min:80, acc:23, dec:30, expl:75 },
-    {r:"CUBA '25",    d:7682, i:78.58, v:9.39, min:80, acc:31, dec:45, expl:75 },
-    {r:"BAC '25",        d:6619, i:71.60, v:8.71, min:80, acc:27, dec:43, expl:75 },
-    {r:"CASI '25",       d:4540, i:70.74, v:9.06, min:65, acc:23, dec:28, expl:75 },
-    {r:"CSL '25",        d:2121, i:49.57, v:8.33, min:24, acc:11, dec:18, expl:75 },
-    {r:"CRBV '25",       d:7141, i:74.44, v:8.47, min:80, acc:30, dec:37, expl:75 },
-    {r:"CSC '26",   d:5337, i:78.76, v:8.42, min:60, acc:25, dec:30, expl:71},
-    {r:"HINDÚ '26", d:5775, i:73.03, v:8.24, min:65, acc:31, dec:24, expl:66},
-    {r:"LPRC '26",  d:5184, i:74.79, v:8.53, min:60, acc:29, dec:29, expl:92}
-  ]
+  gps: [
+    {r:'BACRC',d:6603,i:76.6,v:9.03,acc:32,dec:39,expl:0},
+    {r:'LPRC 2025',d:6813,i:72.66,v:8.87,acc:23,dec:30,expl:0},
+    {r:'Cuba XV',d:7682,i:78.58,v:9.39,acc:31,dec:45,expl:0},
+    {r:'BAC',d:6619,i:71.6,v:8.71,acc:27,dec:43,expl:0},
+    {r:'CASI',d:4540,i:70.74,v:9.06,acc:23,dec:28,expl:0},
+    {r:'CSL',d:2121,i:49.57,v:8.33,acc:11,dec:18,expl:0},
+    {r:'CRBV',d:7141,i:74.44,v:8.47,acc:30,dec:37,expl:0},
+    {r:'CSC 2026',d:5337,i:78.76,v:8.42,acc:25,dec:30,expl:71},
+    {r:'Hindu 2026',d:5775,i:73.03,v:8.24,acc:31,dec:24,expl:66},
+    {r:'LPRC 2026',d:5184,i:74.79,v:8.53,acc:29,dec:29,expl:92}
+  ],
+  chatHistory: []
 };
 
-let _editIdx = null;
 const CHARTS = {};
 const GREEN='#00e896', GOLD='#f0c040', RED='#ff4d6d', BLUE='#38bdf8';
 
